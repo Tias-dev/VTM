@@ -1,20 +1,24 @@
 #ifndef UISTATESTUB_H
 #define UISTATESTUB_H
 
-#include "uistate.h"
+#include <QDebug>
+#include <QLayout>
+
 #include "mainwindow.h"
 #include "statecontroller.h"
-#include <QLayout>
-#include <QDebug>
+#include "uistate.h"
 
-template <class T> class UIStateStub : public UIState{
-protected:
-    T       form;
-public:
-    UIStateStub(StateController* parent) : UIState(parent),form(parent->GetContainer()){
+template <class T>
+class UIStateStub : public UIState {
+   protected:
+    T form;
+
+   public:
+    UIStateStub(StateController* parent)
+        : UIState(parent), form(parent->GetContainer()) {
         qDebug() << "UIStateStub::ctr";
         parent->GetContainer()->layout()->addWidget(&form);
-        parent->GetContainer()->layout()->setContentsMargins(0,0,0,0);
+        parent->GetContainer()->layout()->setContentsMargins(0, 0, 0, 0);
         qDebug() << "UIStateStub::SetController";
         form.SetController(parent);
         qDebug() << "UIStateStub::OnLoaded";
@@ -22,12 +26,12 @@ public:
         qDebug() << "UIStateStub::ctr done";
     }
 
-    void BeforeChange(std::shared_ptr<UIStateData> state_data) override{
-      form.BeforeChange(state_data);
+    void BeforeChange(std::shared_ptr<UIStateData> state_data) override {
+        form.BeforeChange(state_data);
     }
 
     void AfterUndo(std::shared_ptr<UIStateData> state_data) override {
-      form.AfterUndo(state_data);
+        form.AfterUndo(state_data);
     }
 
     void RemoveState() override {
@@ -40,4 +44,4 @@ public:
     ~UIStateStub() override = default;
 };
 
-#endif // UISTATESTUB_H
+#endif  // UISTATESTUB_H

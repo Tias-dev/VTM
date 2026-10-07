@@ -1,18 +1,17 @@
 #include "vmtexportplantuml.h"
 
+#include <QHash>
+#include <QTextStream>
+
 #include "VMTTransitionConditions.h"
 #include "interfaces/IVMTTransition.h"
 #include "vmtmachines/VMTComplexMachine.h"
 #include "vmtmachines/VMTComplexMachineInner.h"
 #include "vmtmachines/VMTMachineAlpha.h"
 
-#include <QHash>
-#include <QTextStream>
-
 namespace {
 
-QString escapePlantumlLabel(const QString& label)
-{
+QString escapePlantumlLabel(const QString& label) {
     QString escaped = label;
     escaped.replace(QLatin1String("\\"), QLatin1String("\\\\"));
     escaped.replace(QLatin1String("\""), QLatin1String("\\\""));
@@ -21,8 +20,7 @@ QString escapePlantumlLabel(const QString& label)
     return escaped;
 }
 
-QString makeUniqueAlias(const QString& base, QHash<QString, int>& usage)
-{
+QString makeUniqueAlias(const QString& base, QHash<QString, int>& usage) {
     QString alias = base;
     if (alias.isEmpty()) {
         alias = QStringLiteral("state");
@@ -38,8 +36,7 @@ QString makeUniqueAlias(const QString& base, QHash<QString, int>& usage)
     return alias;
 }
 
-QString sanitizeAliasBase(const QString& raw)
-{
+QString sanitizeAliasBase(const QString& raw) {
     QString alias;
     alias.reserve(raw.size());
     for (const QChar ch : raw) {
@@ -59,25 +56,25 @@ QString sanitizeAliasBase(const QString& raw)
     return alias;
 }
 
-QString machineDisplayName(const std::shared_ptr<IVMTMachine>& machine)
-{
+QString machineDisplayName(const std::shared_ptr<IVMTMachine>& machine) {
     if (!machine) {
         return QStringLiteral("unknown");
     }
 
     switch (machine->GetID()) {
-    case IVMTMachine::MachineType::MT_START:
-        return QStringLiteral("start");
-    case IVMTMachine::MachineType::MT_FINISH:
-        return QStringLiteral("finish");
-    case IVMTMachine::MachineType::MT_WRITE: {
-        if (auto alpha = std::dynamic_pointer_cast<VMTMachineAlpha>(machine)) {
-            return QStringLiteral("λ(%1)").arg(alpha->GetSign());
+        case IVMTMachine::MachineType::MT_START:
+            return QStringLiteral("start");
+        case IVMTMachine::MachineType::MT_FINISH:
+            return QStringLiteral("finish");
+        case IVMTMachine::MachineType::MT_WRITE: {
+            if (auto alpha =
+                    std::dynamic_pointer_cast<VMTMachineAlpha>(machine)) {
+                return QStringLiteral("λ(%1)").arg(alpha->GetSign());
+            }
+            return QStringLiteral("write");
         }
-        return QStringLiteral("write");
-    }
-    default:
-        break;
+        default:
+            break;
     }
 
     const QString name = machine->GetName();
@@ -87,16 +84,11 @@ QString machineDisplayName(const std::shared_ptr<IVMTMachine>& machine)
     return QStringLiteral("machine");
 }
 
-class PlantUmlBuilder
-{
-public:
-    explicit PlantUmlBuilder(QTextStream& out)
-        : _out(out)
-    {
-    }
+class PlantUmlBuilder {
+   public:
+    explicit PlantUmlBuilder(QTextStream& out) : _out(out) {}
 
-    void exportComplexMachine(VMTComplexMachine& machine)
-    {
+    void exportComplexMachine(VMTComplexMachine& machine) {
         _out << "@startuml\n";
         _out << "!theme plain\n";
         _out << "hide empty description\n";
@@ -114,50 +106,57 @@ public:
         _out << "@enduml\n";
     }
 
-private:
-    void exportScope(VMTComplexMachineInner& scope, const QString& indent)
-    {
+   private:
+    void exportScope(VMTComplexMachineInner& scope, const QString& indent) {
         QHash<QString, int> aliasUsage;
         QHash<const IVMTMachine*, QString> machineAliases;
 
-        for (const std::shared_ptr<IVMTMachine>& machine : scope.GetMachineCollection()) {
+        for (const std::shared_ptr<IVMTMachine>& machine :
+             scope.GetMachineCollection()) {
             if (!machine) {
                 continue;
             }
-            if (machine->GetID() == IVMTMachine::MachineType::MT_START
-                || machine->GetID() == IVMTMachine::MachineType::MT_FINISH) {
+            if (machine->GetID() == IVMTMachine::MachineType::MT_START ||
+                machine->GetID() == IVMTMachine::MachineType::MT_FINISH) {
                 continue;
             }
 
             if (machine->GetID() == IVMTMachine::MachineType::MT_COMPLEX) {
-                auto complex = std::dynamic_pointer_cast<VMTComplexMachine>(machine);
+                auto complex =
+                    std::dynamic_pointer_cast<VMTComplexMachine>(machine);
                 if (!complex) {
                     continue;
                 }
 
                 const QString display = machineDisplayName(machine);
-                const QString alias = makeUniqueAlias(sanitizeAliasBase(display), aliasUsage);
+                const QString alias =
+                    makeUniqueAlias(sanitizeAliasBase(display), aliasUsage);
                 machineAliases.insert(machine.get(), alias);
 
-                _out << indent << "state \"" << escapePlantumlLabel(display) << "\" as " << alias << " {\n";
+                _out << indent << "state \"" << escapePlantumlLabel(display)
+                     << "\" as " << alias << " {\n";
                 if (complex->GetInnerObject()) {
-                    exportScope(*complex->GetInnerObject(), indent + QStringLiteral("  "));
+                    exportScope(*complex->GetInnerObject(),
+                                indent + QStringLiteral("  "));
                 }
                 _out << indent << "}\n";
                 continue;
             }
 
             const QString display = machineDisplayName(machine);
-            const QString alias = makeUniqueAlias(sanitizeAliasBase(display), aliasUsage);
+            const QString alias =
+                makeUniqueAlias(sanitizeAliasBase(display), aliasUsage);
             machineAliases.insert(machine.get(), alias);
-            _out << indent << "state \"" << escapePlantumlLabel(display) << "\" as " << alias << "\n";
+            _out << indent << "state \"" << escapePlantumlLabel(display)
+                 << "\" as " << alias << "\n";
         }
 
         if (!scope.GetTransitionCollection().empty()) {
             _out << "\n";
         }
 
-        for (const std::shared_ptr<IVMTTransition>& transition : scope.GetTransitionCollection()) {
+        for (const std::shared_ptr<IVMTTransition>& transition :
+             scope.GetTransitionCollection()) {
             if (!transition) {
                 continue;
             }
@@ -192,14 +191,13 @@ private:
     }
 
     QString stateRef(const std::shared_ptr<IVMTMachine>& machine,
-                     const QHash<const IVMTMachine*, QString>& aliases) const
-    {
+                     const QHash<const IVMTMachine*, QString>& aliases) const {
         if (!machine) {
             return QString();
         }
 
-        if (machine->GetID() == IVMTMachine::MachineType::MT_START
-            || machine->GetID() == IVMTMachine::MachineType::MT_FINISH) {
+        if (machine->GetID() == IVMTMachine::MachineType::MT_START ||
+            machine->GetID() == IVMTMachine::MachineType::MT_FINISH) {
             return QStringLiteral("[*]");
         }
 
@@ -209,10 +207,9 @@ private:
     QTextStream& _out;
 };
 
-} // namespace
+}  // namespace
 
-QString VmtExportPlantUml::exportStateMachine(VMTComplexMachine& machine)
-{
+QString VmtExportPlantUml::exportStateMachine(VMTComplexMachine& machine) {
     QString result;
     QTextStream stream(&result);
     PlantUmlBuilder builder(stream);

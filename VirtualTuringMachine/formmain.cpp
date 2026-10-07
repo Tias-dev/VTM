@@ -1,32 +1,31 @@
 #include "formmain.h"
-#include "ui_formmain.h"
-#include <QDebug>
-#include <QFileDialog>
-#include "configuration.h"
-#include "vmtproject.h"
+
 #include <QApplication>
-#include <QScreen>
-#include "screentools.h"
-#include "vmttheme.h"
-#include "vmticons.h"
-#include "VMTJsonSerializer.h"
-#include "uistateexercises.h"
+#include <QDebug>
 #include <QDesktopServices>
+#include <QFileDialog>
+#include <QScreen>
 #include <QUrl>
 
-FormMain::FormMain(QWidget *parent) :
-    QWidget(parent),
-    ui(new Ui::FormMain)
-{
+#include "VMTJsonSerializer.h"
+#include "configuration.h"
+#include "screentools.h"
+#include "ui_formmain.h"
+#include "uistateexercises.h"
+#include "vmticons.h"
+#include "vmtproject.h"
+#include "vmttheme.h"
+
+FormMain::FormMain(QWidget* parent) : QWidget(parent), ui(new Ui::FormMain) {
     ui->setupUi(this);
     VmtTheme::polishWidgetTree(this);
 
-    for(const QString &name: Configuration::GetInstance().GetRecentProjects())
-        addItem(ui->listWidget,
-                VmtIcons::pick(":/Files/images/toolbars/main/icon_open_black.png",
-                               ":/Files/images/toolbars/main/icon_open.png"),
-                name, 1);
-
+    for (const QString& name : Configuration::GetInstance().GetRecentProjects())
+        addItem(
+            ui->listWidget,
+            VmtIcons::pick(":/Files/images/toolbars/main/icon_open_black.png",
+                           ":/Files/images/toolbars/main/icon_open.png"),
+            name, 1);
 
     VMTProject::GetInstance().GetMachines().clear();
 
@@ -39,64 +38,52 @@ FormMain::FormMain(QWidget *parent) :
     ui->listWidget->setStyleSheet(VmtTheme::listSurfaceStyle());
     VmtTheme::applyIconToolBar(ui->frame);
 
-//    QObject::connect(ui->listWidget, SIGNAL(itemClicked(QListWidgetItem *)),
-//                     this, SLOT(onItemClicked(QListWidgetItem *)));
+    //    QObject::connect(ui->listWidget, SIGNAL(itemClicked(QListWidgetItem
+    //    *)),
+    //                     this, SLOT(onItemClicked(QListWidgetItem *)));
 }
 
-void FormMain::BeforeChange(std::shared_ptr<UIStateData>){
+void FormMain::BeforeChange(std::shared_ptr<UIStateData>) {}
 
-}
+void FormMain::AfterUndo(std::shared_ptr<UIStateData>) {}
 
-void FormMain::AfterUndo(std::shared_ptr<UIStateData>) {
-
-}
-
-void FormMain::addItem(QListWidget *listWidget, QString iconPath, QString text,int data)
-{
+void FormMain::addItem(QListWidget* listWidget, QString iconPath, QString text,
+                       int data) {
     QIcon icon(iconPath);
-    QListWidgetItem *item = new QListWidgetItem(icon, text);
+    QListWidgetItem* item = new QListWidgetItem(icon, text);
     QVariant variant(data);
     item->setData(Qt::UserRole, variant);
     listWidget->addItem(item);
 }
 
-
 #include "uistatenewproject.h"
 
-FormMain::~FormMain()
-{
+FormMain::~FormMain() {
     qDebug() << "Delete FormMain";
     delete ui;
 }
 
-void FormMain::on_button_new_clicked()
-{
+void FormMain::on_button_new_clicked() {
     qDebug() << "Clear undo manager";
-    if( VMTProject::GetInstance().GetUndoManager())
+    if (VMTProject::GetInstance().GetUndoManager())
         VMTProject::GetInstance().GetUndoManager()->Clear();
     VMTProject::GetInstance().GetName() = "MyProject";
-    VMTProject::GetInstance().GetLocation() = Configuration::GetInstance().GetDefaultLocation();
+    VMTProject::GetInstance().GetLocation() =
+        Configuration::GetInstance().GetDefaultLocation();
     QString alphabit("");
     VMTProject::GetInstance().GetAlphabit()->ReplaceString(alphabit);
     qDebug() << "Change state";
-    _controller->ChangeState(std::shared_ptr<UIStateNewProjectData>(new UIStateNewProjectData()));
+    _controller->ChangeState(
+        std::shared_ptr<UIStateNewProjectData>(new UIStateNewProjectData()));
 }
 
-void FormMain::on_pushButton_clicked()
-{
+void FormMain::on_pushButton_clicked() {}
 
-}
+void FormMain::on_listWidget_itemSelectionChanged() {}
 
-void FormMain::on_listWidget_itemSelectionChanged()
-{
+void FormMain::on_pushButton_Recent_clicked() {}
 
-}
-
-void FormMain::on_pushButton_Recent_clicked()
-{
-}
-
-bool FormMain::OpenProject(QString &file){
+bool FormMain::OpenProject(QString& file) {
     bool ok = false;
     if (VMTJsonSerializer::isJsonPath(file)) {
         VMTJsonSerializer json(file);
@@ -110,85 +97,81 @@ bool FormMain::OpenProject(QString &file){
     VMTProject::GetInstance().GetUndoManager()->Clear();
 
     QFileInfo file_info(file);
-    VMTProject::GetInstance().GetLocation() = file_info.absoluteDir().absolutePath();
+    VMTProject::GetInstance().GetLocation() =
+        file_info.absoluteDir().absolutePath();
     VMTProject::GetInstance().GetName() = file_info.baseName();
 
     return true;
 }
 
-void FormMain::on_listWidget_doubleClicked(const QModelIndex &index)
-{
+void FormMain::on_listWidget_doubleClicked(const QModelIndex& index) {
     int row = index.row();
-    QListWidgetItem *item=ui->listWidget->item(row);
-    if(item){
+    QListWidgetItem* item = ui->listWidget->item(row);
+    if (item) {
         QString file = item->text();
-        if(OpenProject(file))
-            _controller->ChangeState(std::shared_ptr<UIStateNewProjectData>(new UIStateNewProjectData()));
+        if (OpenProject(file))
+            _controller->ChangeState(std::shared_ptr<UIStateNewProjectData>(
+                new UIStateNewProjectData()));
     }
 }
 
-void FormMain::on_listWidget_clicked(const QModelIndex &index)
-{
+void FormMain::on_listWidget_clicked(const QModelIndex& index) {
     int row = index.row();
-    QListWidgetItem *item=ui->listWidget->item(row);
-    if(item){
+    QListWidgetItem* item = ui->listWidget->item(row);
+    if (item) {
         QString file = item->text();
-        if(OpenProject(file))
-            _controller->ChangeState(std::shared_ptr<UIStateNewProjectData>(new UIStateNewProjectData()));
+        if (OpenProject(file))
+            _controller->ChangeState(std::shared_ptr<UIStateNewProjectData>(
+                new UIStateNewProjectData()));
     }
 }
 
-void FormMain::on_button_open_clicked()
-{
+void FormMain::on_button_open_clicked() {
     QFileDialog dlg;
     dlg.setWindowTitle("Open Virtual Machine Project");
     dlg.setAcceptMode(QFileDialog::AcceptOpen);
     dlg.setFileMode(QFileDialog::ExistingFile);
     dlg.setViewMode(QFileDialog::List);
     QStringList filters;
-    filters <<"Any files (*)"
-            <<"Turing machine files (*.jdtp)"
-            <<"JSON projects (*.vmt.json *.json)";
-    dlg.setOption(QFileDialog::HideNameFilterDetails,false);
+    filters << "Any files (*)"
+            << "Turing machine files (*.jdtp)"
+            << "JSON projects (*.vmt.json *.json)";
+    dlg.setOption(QFileDialog::HideNameFilterDetails, false);
     dlg.setNameFilters(filters);
     dlg.resize(QApplication::primaryScreen()->availableSize());
-    if(dlg.exec()==QDialog::Accepted)
-    {
-        QStringList fileName=dlg.selectedFiles();
+    if (dlg.exec() == QDialog::Accepted) {
+        QStringList fileName = dlg.selectedFiles();
 
-        if(fileName.length()>0){
+        if (fileName.length() > 0) {
             QString file = fileName[0];
-            if(file.length()>0){
-                if(OpenProject(file)){
-                    if( VMTProject::GetInstance().GetUndoManager())
+            if (file.length() > 0) {
+                if (OpenProject(file)) {
+                    if (VMTProject::GetInstance().GetUndoManager())
                         VMTProject::GetInstance().GetUndoManager()->Clear();
                     Configuration::GetInstance().AddRecentProject(file);
                     Configuration::GetInstance().Save();
-                    _controller->ChangeState(std::shared_ptr<UIStateNewProjectData>(new UIStateNewProjectData()));
+                    _controller->ChangeState(
+                        std::shared_ptr<UIStateNewProjectData>(
+                            new UIStateNewProjectData()));
                 }
             }
         }
     }
 }
 
-void FormMain::on_toolButton_clicked()
-{
-    if( VMTProject::GetInstance().GetUndoManager())
+void FormMain::on_toolButton_clicked() {
+    if (VMTProject::GetInstance().GetUndoManager())
         VMTProject::GetInstance().GetUndoManager()->Clear();
     VMTProject::GetInstance().GetName() = "MyExercise";
-    VMTProject::GetInstance().GetLocation() = Configuration::GetInstance().GetDefaultLocation();
+    VMTProject::GetInstance().GetLocation() =
+        Configuration::GetInstance().GetDefaultLocation();
     QString alphabit("");
     VMTProject::GetInstance().GetAlphabit()->ReplaceString(alphabit);
     _controller->ChangeState(std::make_shared<UIStateExercisesData>());
-
 }
 
-void FormMain::on_toolButton_2_triggered([[maybe_unused]] QAction *arg1)
-{
+void FormMain::on_toolButton_2_triggered([[maybe_unused]] QAction* arg1) {}
 
-}
-
-void FormMain::on_toolButton_2_clicked()
-{
+void FormMain::on_toolButton_2_clicked() {
     QDesktopServices::openUrl(QUrl("https://mai.ru/"));
 }

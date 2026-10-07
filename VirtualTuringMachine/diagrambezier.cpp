@@ -1,7 +1,6 @@
 #include "diagrambezier.h"
 
 #include <QPainterPathStroker>
-
 #include <algorithm>
 #include <cmath>
 
@@ -9,18 +8,15 @@ namespace DiagramBezier {
 
 namespace {
 
-QPoint extrapolateStart(const std::vector<QPoint>& points)
-{
+QPoint extrapolateStart(const std::vector<QPoint>& points) {
     return points.front() + (points.front() - points[1]);
 }
 
-QPoint extrapolateEnd(const std::vector<QPoint>& points)
-{
+QPoint extrapolateEnd(const std::vector<QPoint>& points) {
     return points.back() + (points.back() - points[points.size() - 2]);
 }
 
-QPoint pointAt(const std::vector<QPoint>& points, int index)
-{
+QPoint pointAt(const std::vector<QPoint>& points, int index) {
     if (index < 0) {
         return extrapolateStart(points);
     }
@@ -30,10 +26,9 @@ QPoint pointAt(const std::vector<QPoint>& points, int index)
     return points[static_cast<size_t>(index)];
 }
 
-} // namespace
+}  // namespace
 
-void snapPortHeights(std::vector<QPoint>& points)
-{
+void snapPortHeights(std::vector<QPoint>& points) {
     if (points.size() < 2) {
         return;
     }
@@ -52,8 +47,7 @@ void snapPortHeights(std::vector<QPoint>& points)
     }
 }
 
-QPainterPath buildConnectorPath(const std::vector<QPoint>& points)
-{
+QPainterPath buildConnectorPath(const std::vector<QPoint>& points) {
     QPainterPath path;
     if (points.empty()) {
         return path;
@@ -93,8 +87,8 @@ QPainterPath buildConnectorPath(const std::vector<QPoint>& points)
     return path;
 }
 
-std::vector<QPoint> flattenPath(const QPainterPath& path, qreal maxSegmentLength)
-{
+std::vector<QPoint> flattenPath(const QPainterPath& path,
+                                qreal maxSegmentLength) {
     std::vector<QPoint> samples;
     if (path.isEmpty()) {
         return samples;
@@ -118,8 +112,8 @@ std::vector<QPoint> flattenPath(const QPainterPath& path, qreal maxSegmentLength
     return samples;
 }
 
-bool isPointNearStroke(const QPainterPath& path, const QPoint& point, qreal tolerance)
-{
+bool isPointNearStroke(const QPainterPath& path, const QPoint& point,
+                       qreal tolerance) {
     if (path.isEmpty()) {
         return false;
     }
@@ -133,4 +127,4 @@ bool isPointNearStroke(const QPainterPath& path, const QPoint& point, qreal tole
     return stroke.contains(point);
 }
 
-} // namespace DiagramBezier
+}  // namespace DiagramBezier

@@ -10,7 +10,7 @@
 
 using wall_checker_t = std::function<bool(const QPoint&)>;
 using wall_painter_t = std::function<void(const QPoint&)>;
-using path_t         = std::vector<QPoint>;
+using path_t = std::vector<QPoint>;
 
 struct Cell {
     bool wall = false;
@@ -24,12 +24,13 @@ struct Matrix {
     QPoint finish;
     size_t grid_size = 0;
 
-    std::pair<size_t, size_t> start_cell {0, 0};
-    std::pair<size_t, size_t> finish_cell {0, 0};
+    std::pair<size_t, size_t> start_cell{0, 0};
+    std::pair<size_t, size_t> finish_cell{0, 0};
     std::vector<Cell> cells;
 
     Matrix() = default;
-    Matrix(const QPoint& start, const QPoint& finish, const QRect& bounds, size_t grid_size);
+    Matrix(const QPoint& start, const QPoint& finish, const QRect& bounds,
+           size_t grid_size);
 
     Cell& at(std::pair<size_t, size_t> cell);
     const Cell& at(std::pair<size_t, size_t> cell) const;
@@ -38,33 +39,31 @@ struct Matrix {
     std::pair<size_t, size_t> point_to_cell(const QPoint& point) const;
 
     void FillWalls(wall_checker_t checker);
-    void markBlockedPaths(const std::vector<path_t>& blockedPaths, int pathCorridor);
-    bool segment_is_clear(std::pair<size_t, size_t> from, std::pair<size_t, size_t> to) const;
+    void markBlockedPaths(const std::vector<path_t>& blockedPaths,
+                          int pathCorridor);
+    bool segment_is_clear(std::pair<size_t, size_t> from,
+                          std::pair<size_t, size_t> to) const;
 };
 
-class Pathfinder
-{
-public:
+class Pathfinder {
+   public:
     Pathfinder() = default;
 
-    path_t GetPath(const QPoint& start,
-                   const QPoint& finish,
-                   const QRect& bounds,
-                   size_t grid_size,
+    path_t GetPath(const QPoint& start, const QPoint& finish,
+                   const QRect& bounds, size_t grid_size,
                    wall_checker_t checker,
                    const std::vector<path_t>& blockedPaths = {},
                    int pathCorridor = 6);
 
-private:
+   private:
     Matrix matrix;
     bool searchPath(path_t& path);
     path_t simplifyPath(const path_t& gridPath) const;
     path_t optimizeOrthogonalPath(path_t path, wall_checker_t checker) const;
     path_t enforceTerminalDirections(path_t path) const;
-    bool pointBlocksPath(const QPoint& point,
-                         const wall_checker_t& checker,
+    bool pointBlocksPath(const QPoint& point, const wall_checker_t& checker,
                          const std::vector<path_t>& blockedPaths,
                          int pathCorridor) const;
 };
 
-#endif // PATHFINDER_H
+#endif  // PATHFINDER_H

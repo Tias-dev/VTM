@@ -6,11 +6,10 @@
 class VMTProject;
 
 /** JSON interchange format compatible with vmt-web (.vmt.json). */
-class VMTJsonSerializer
-{
+class VMTJsonSerializer {
     QString _file_name;
 
-public:
+   public:
     explicit VMTJsonSerializer(const QString& fileName);
 
     bool serialize(VMTProject* project) const;
@@ -19,4 +18,4 @@ public:
     static bool isJsonPath(const QString& path);
 };
 
-#endif // VMTJSONSERIALIZER_H
+#endif  // VMTJSONSERIALIZER_H

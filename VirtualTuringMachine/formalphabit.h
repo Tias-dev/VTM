@@ -1,40 +1,41 @@
 #ifndef FORMALPHABIT_H
 #define FORMALPHABIT_H
 
+#include <QButtonGroup>
+#include <QToolButton>
 #include <QWidget>
+#include <vector>
+
+#include "flowlayout.h"
 #include "interfaces/IVMTAlphabitSource.h"
 #include "isCtrlPressed.h"
-#include <vector>
-#include <QToolButton>
-#include <QButtonGroup>
-#include "flowlayout.h"
 class IVMTEnvironment;
 
 namespace Ui {
 class FormAlphabit;
 }
 
-class FormAlphabit : public QWidget
-{
+class FormAlphabit : public QWidget {
     Q_OBJECT
 
-public:
-    explicit FormAlphabit(IVMTAlphabitSource *alphabit_source,IVMTEnvironment *environment,QWidget *parent = 0);
+   public:
+    explicit FormAlphabit(IVMTAlphabitSource* alphabit_source,
+                          IVMTEnvironment* environment, QWidget* parent = 0);
     IVMTAlphabitSource* GetAlphabitSource() const { return _alphabit_source; }
 
     ~FormAlphabit();
 
-private:
-    Ui::FormAlphabit *ui;
-    IVMTAlphabitSource *_alphabit_source;
-    IVMTEnvironment *_environment;
-    //std::vector<QPushButton*> _buttons;
+   private:
+    Ui::FormAlphabit* ui;
+    IVMTAlphabitSource* _alphabit_source;
+    IVMTEnvironment* _environment;
+    // std::vector<QPushButton*> _buttons;
     std::vector<QString> _names;
     FlowLayout _layout;
     QToolButton _buttons[256];
     QButtonGroup _group;
-private slots:
+   private slots:
     void onRefClicked();
 };
 
-#endif // FORMALPHABIT_H
+#endif  // FORMALPHABIT_H

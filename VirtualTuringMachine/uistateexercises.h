@@ -1,22 +1,20 @@
 #ifndef UISTATEEXERCISES_H
 #define UISTATEEXERCISES_H
 
-#include "uistatestub.h"
+#include <QMessageBox>
+#include <memory>
+
+#include "configuration.h"
 #include "formexercises.h"
 #include "uistateeditormachine.h"
-#include "configuration.h"
-#include <memory>
-#include <QMessageBox>
+#include "uistatestub.h"
 class StateController;
 class UIStateExercisesData;
 
-class UIStateExercises : public UIStateStub<FormExercises>
-{
-public:
-
-
-    UIStateExercises(StateController* parent): UIStateStub<FormExercises>(parent)
-    {
+class UIStateExercises : public UIStateStub<FormExercises> {
+   public:
+    UIStateExercises(StateController* parent)
+        : UIStateStub<FormExercises>(parent) {
         parent->EnableExercise(false);
         parent->EnableNewMachine(false);
         parent->EnableOpenMachine(false);
@@ -40,35 +38,28 @@ public:
         parent->EnableZoom(false);
     }
 
-    void Action([[maybe_unused]] const QString& name) override{
-
-    }
+    void Action([[maybe_unused]] const QString& name) override {}
 
     friend UIStateExercisesData;
 };
 
-class UIStateExercisesData : public UIStateData{
-
-public:
-    std::shared_ptr<UIState> ConstructNewState(StateController * controller) override{
+class UIStateExercisesData : public UIStateData {
+   public:
+    std::shared_ptr<UIState> ConstructNewState(
+        StateController* controller) override {
         return std::make_shared<UIStateExercises>(controller);
     }
-    std::shared_ptr<UIState> ConstructUndoState(StateController * controller) override{
+    std::shared_ptr<UIState> ConstructUndoState(
+        StateController* controller) override {
         return std::make_shared<UIStateExercises>(controller);
     }
 
-    bool IsNeedWarning() override {
-        return false;
-    }
+    bool IsNeedWarning() override { return false; }
 
-    QString GetName() override{
-        return name;
-    }
+    QString GetName() override { return name; }
 
-    void SetName(QString name) override{
-        this->name = name;
-    }
+    void SetName(QString name) override { this->name = name; }
 
-    QString name="Exercises";
+    QString name = "Exercises";
 };
-#endif // UISTATEEXERCISES_H
+#endif  // UISTATEEXERCISES_H

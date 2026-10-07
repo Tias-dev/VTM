@@ -9,8 +9,8 @@
 #ifndef UI_FORMALPHABIT_H
 #define UI_FORMALPHABIT_H
 
-#include <QtCore/QVariant>
 #include <QAction>
+#include <QtCore/QVariant>
 #include <QtWidgets/QApplication>
 #include <QtWidgets/QButtonGroup>
 #include <QtWidgets/QFrame>
@@ -20,14 +20,12 @@
 
 QT_BEGIN_NAMESPACE
 
-class Ui_FormAlphabit
-{
-public:
-    QHBoxLayout *horizontalLayout;
-    QFrame *frame;
+class Ui_FormAlphabit {
+   public:
+    QHBoxLayout* horizontalLayout;
+    QFrame* frame;
 
-    void setupUi(QWidget *FormAlphabit)
-    {
+    void setupUi(QWidget* FormAlphabit) {
         if (FormAlphabit->objectName().isEmpty())
             FormAlphabit->setObjectName(QStringLiteral("FormAlphabit"));
         FormAlphabit->resize(413, 174);
@@ -46,23 +44,21 @@ public:
 
         horizontalLayout->addWidget(frame);
 
-
         retranslateUi(FormAlphabit);
 
         QMetaObject::connectSlotsByName(FormAlphabit);
-    } // setupUi
+    }  // setupUi
 
-    void retranslateUi(QWidget *FormAlphabit)
-    {
-        FormAlphabit->setWindowTitle(QApplication::translate("FormAlphabit", "Form", Q_NULLPTR));
-    } // retranslateUi
-
+    void retranslateUi(QWidget* FormAlphabit) {
+        FormAlphabit->setWindowTitle(
+            QApplication::translate("FormAlphabit", "Form", Q_NULLPTR));
+    }  // retranslateUi
 };
 
 namespace Ui {
-    class FormAlphabit: public Ui_FormAlphabit {};
-} // namespace Ui
+class FormAlphabit : public Ui_FormAlphabit {};
+}  // namespace Ui
 
 QT_END_NAMESPACE
 
-#endif // UI_FORMALPHABIT_H
+#endif  // UI_FORMALPHABIT_H

@@ -1,7 +1,3 @@
 #include "machineslibrary.h"
 
-
-MachinesLibrary::MachinesLibrary()
-{
-     a = 5;
-}
+MachinesLibrary::MachinesLibrary() { a = 5; }

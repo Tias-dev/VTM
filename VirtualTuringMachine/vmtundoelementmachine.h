@@ -1,18 +1,19 @@
 #ifndef VMTUNDOELEMENTMACHINE_H
 #define VMTUNDOELEMENTMACHINE_H
 
-#include "vmtundoelement.h"
 #include <QBuffer>
 #include <QByteArray>
 
-class VMTUndoElementMachine : public VMTUndoElement
-{
-protected:
+#include "vmtundoelement.h"
+
+class VMTUndoElementMachine : public VMTUndoElement {
+   protected:
     QByteArray _array;
-public:
+
+   public:
     VMTUndoElementMachine();
     void Undo(IVMTEnvironment*) override;
     virtual ~VMTUndoElementMachine();
 };
 
-#endif // VMTUNDOELEMENTMACHINE_H
+#endif  // VMTUNDOELEMENTMACHINE_H

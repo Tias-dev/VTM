@@ -1,16 +1,14 @@
 #ifndef UISTATEDEBUGERMACHINE_H
 #define UISTATEDEBUGERMACHINE_H
 
-#include "uistatestub.h"
 #include "formdebugermachine.h"
+#include "uistatestub.h"
 class UIStateDebugerMachineData;
 
-class UIStateDebugerMachine : public UIStateStub<FormDebugerMachine>
-{
-protected:
-    UIStateDebugerMachine(StateController* parent): UIStateStub<FormDebugerMachine>(parent)
-    {
-
+class UIStateDebugerMachine : public UIStateStub<FormDebugerMachine> {
+   protected:
+    UIStateDebugerMachine(StateController* parent)
+        : UIStateStub<FormDebugerMachine>(parent) {
         parent->EnableNewMachine(false);
         parent->EnableOpenMachine(false);
         parent->EnableSave(false);
@@ -23,7 +21,7 @@ protected:
         parent->EnableDebugBack(false);
         parent->EnableDebugOver(false);
         parent->EnableDebugPause(false);
-        if(VMTProject::GetInstance().IsTestMode()){
+        if (VMTProject::GetInstance().IsTestMode()) {
             parent->EnableExercise(true);
             parent->EnableDebugRun(false);
             parent->EnableDebugStep(false);
@@ -41,35 +39,30 @@ protected:
         form.ChangeZoom(parent->GetZoom());
     }
 
-    void OnZoomChanged(int zoom) override {
-      form.ChangeZoom(zoom);
-    }
+    void OnZoomChanged(int zoom) override { form.ChangeZoom(zoom); }
 
-
-    void Action(const QString& name) override{
-        if(name == QString("button_debug_step"))
-            form.Step();
-        if(name == QString("button_debug_run"))
-            form.Run();
-        if(name == QString("button_debug_stop"))
-            form.Stop();
-        if(name == QString("button_exercise"))
-            form.StartExercise();
+    void Action(const QString& name) override {
+        if (name == QString("button_debug_step")) form.Step();
+        if (name == QString("button_debug_run")) form.Run();
+        if (name == QString("button_debug_stop")) form.Stop();
+        if (name == QString("button_exercise")) form.StartExercise();
     }
 
     friend UIStateDebugerMachineData;
 };
 
-class UIStateDebugerMachineData : public UIStateData{
-public:
-    std::shared_ptr<UIState> ConstructNewState(StateController * controller) override{
-        return std::shared_ptr<UIStateDebugerMachine>(new UIStateDebugerMachine(controller));
+class UIStateDebugerMachineData : public UIStateData {
+   public:
+    std::shared_ptr<UIState> ConstructNewState(
+        StateController* controller) override {
+        return std::shared_ptr<UIStateDebugerMachine>(
+            new UIStateDebugerMachine(controller));
     }
-    std::shared_ptr<UIState> ConstructUndoState(StateController * controller) override{
-        return std::shared_ptr<UIStateDebugerMachine>(new UIStateDebugerMachine(controller));
+    std::shared_ptr<UIState> ConstructUndoState(
+        StateController* controller) override {
+        return std::shared_ptr<UIStateDebugerMachine>(
+            new UIStateDebugerMachine(controller));
     }
-    QString GetName() override{
-        return QString("Debuger");
-    }
+    QString GetName() override { return QString("Debuger"); }
 };
-#endif // UISTATEDEBUGERMACHINE_H
+#endif  // UISTATEDEBUGERMACHINE_H

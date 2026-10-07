@@ -1,19 +1,16 @@
 #ifndef UISTATENEWMACHINE_H
 #define UISTATENEWMACHINE_H
 
-#include "uistatestub.h"
 #include "formnewmachine.h"
+#include "uistatestub.h"
 
 class StateController;
 class UIStateNewMachineData;
 
-class UIStateNewMachine : public UIStateStub<FormNewMachine>
-{
-protected:
-
-
-    UIStateNewMachine(StateController* parent): UIStateStub<FormNewMachine>(parent)
-    {
+class UIStateNewMachine : public UIStateStub<FormNewMachine> {
+   protected:
+    UIStateNewMachine(StateController* parent)
+        : UIStateStub<FormNewMachine>(parent) {
         parent->EnableExercise(false);
         parent->EnableNewMachine(false);
         parent->EnableOpenMachine(false);
@@ -37,29 +34,27 @@ protected:
         parent->EnableZoom(false);
     }
 
-    void Action(const QString& name) override{
-      if(name == QString("button_ok")){
-
-      }
-
+    void Action(const QString& name) override {
+        if (name == QString("button_ok")) {
+        }
     }
 
     friend UIStateNewMachineData;
 };
 
-class UIStateNewMachineData : public UIStateData{
-
-public:
-    std::shared_ptr<UIState> ConstructNewState(StateController * controller) override{
-        return std::shared_ptr<UIStateNewMachine>(new UIStateNewMachine(controller));
+class UIStateNewMachineData : public UIStateData {
+   public:
+    std::shared_ptr<UIState> ConstructNewState(
+        StateController* controller) override {
+        return std::shared_ptr<UIStateNewMachine>(
+            new UIStateNewMachine(controller));
     }
-    std::shared_ptr<UIState> ConstructUndoState(StateController * controller) override{
-        return std::shared_ptr<UIStateNewMachine>(new UIStateNewMachine(controller));
+    std::shared_ptr<UIState> ConstructUndoState(
+        StateController* controller) override {
+        return std::shared_ptr<UIStateNewMachine>(
+            new UIStateNewMachine(controller));
     }
-    QString GetName() override{
-        return "Machines";
-    }
-
+    QString GetName() override { return "Machines"; }
 };
 
-#endif // UISTATENEWMACHINE_H
+#endif  // UISTATENEWMACHINE_H

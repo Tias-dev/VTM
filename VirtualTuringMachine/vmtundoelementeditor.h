@@ -1,16 +1,16 @@
 #ifndef VMTUNDOELEMENTEDITOR_H
 #define VMTUNDOELEMENTEDITOR_H
 
-#include "vmtundoelement.h"
 #include "uicanvas.h"
+#include "vmtundoelement.h"
 
-class VMTUndoElementEditor : public VMTUndoElement
-{
-protected:
+class VMTUndoElementEditor : public VMTUndoElement {
+   protected:
     UICanvasState _state;
-public:
+
+   public:
     VMTUndoElementEditor(IVMTEnvironment*);
     void Undo(IVMTEnvironment*) override;
 };
 
-#endif // VMTUNDOELEMENTEDITOR_H
+#endif  // VMTUNDOELEMENTEDITOR_H

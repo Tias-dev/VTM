@@ -1,33 +1,34 @@
 #ifndef CONFIGURATION_H
 #define CONFIGURATION_H
 #include <QApplication>
-#include <vector>
-#include "exercise.h"
 #include <memory>
+#include <vector>
 
-class Configuration
-{
-private:
+#include "exercise.h"
+
+class Configuration {
+   private:
     static Configuration instance;
-    QApplication *_app;
+    QApplication* _app;
     std::vector<QString> _recent_projects;
     std::vector<std::shared_ptr<Exercise>> _exercises;
 
     QString _default_location;
     bool _dark_theme;
     void LoadExercises();
-public:
+
+   public:
     Configuration();
-    void Init(QApplication *app);
+    void Init(QApplication* app);
     void Save();
     const QString& GetDefaultLocation();
     const std::vector<QString>& GetRecentProjects();
     const std::vector<std::shared_ptr<Exercise>>& GetExercises();
 
-    void  AddRecentProject(QString & name);
+    void AddRecentProject(QString& name);
     bool IsDarkTheme() const;
     void SetDarkTheme(bool enabled);
     static Configuration& GetInstance();
 };
 
-#endif // CONFIGURATION_H
+#endif  // CONFIGURATION_H

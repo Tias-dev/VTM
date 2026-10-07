@@ -5,10 +5,9 @@
 
 class VMTComplexMachine;
 
-class VmtExportPlantUml
-{
-public:
+class VmtExportPlantUml {
+   public:
     static QString exportStateMachine(VMTComplexMachine& machine);
 };
 
-#endif // VMTEXPORTPLANTUML_H
+#endif  // VMTEXPORTPLANTUML_H

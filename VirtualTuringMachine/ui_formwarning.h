@@ -21,21 +21,19 @@
 
 QT_BEGIN_NAMESPACE
 
-class Ui_FormWarning
-{
-public:
-    QVBoxLayout *verticalLayout;
-    QFrame *frame;
-    QHBoxLayout *horizontalLayout_2;
-    QLabel *label_2;
-    QLabel *label;
-    QFrame *frame_2;
-    QHBoxLayout *horizontalLayout;
-    QPushButton *button_ok;
-    QPushButton *button_cancel;
+class Ui_FormWarning {
+   public:
+    QVBoxLayout* verticalLayout;
+    QFrame* frame;
+    QHBoxLayout* horizontalLayout_2;
+    QLabel* label_2;
+    QLabel* label;
+    QFrame* frame_2;
+    QHBoxLayout* horizontalLayout;
+    QPushButton* button_ok;
+    QPushButton* button_cancel;
 
-    void setupUi(QWidget *FormWarning)
-    {
+    void setupUi(QWidget* FormWarning) {
         if (FormWarning->objectName().isEmpty())
             FormWarning->setObjectName(QString::fromUtf8("FormWarning"));
         FormWarning->resize(400, 300);
@@ -46,10 +44,12 @@ public:
         frame->setFrameShape(QFrame::NoFrame);
         frame->setFrameShadow(QFrame::Plain);
         horizontalLayout_2 = new QHBoxLayout(frame);
-        horizontalLayout_2->setObjectName(QString::fromUtf8("horizontalLayout_2"));
+        horizontalLayout_2->setObjectName(
+            QString::fromUtf8("horizontalLayout_2"));
         label_2 = new QLabel(frame);
         label_2->setObjectName(QString::fromUtf8("label_2"));
-        label_2->setPixmap(QPixmap(QString::fromUtf8(":/Files/images/warning.png")));
+        label_2->setPixmap(
+            QPixmap(QString::fromUtf8(":/Files/images/warning.png")));
 
         horizontalLayout_2->addWidget(label_2);
 
@@ -63,7 +63,6 @@ public:
 
         horizontalLayout_2->addWidget(label);
 
-
         verticalLayout->addWidget(frame);
 
         frame_2 = new QFrame(FormWarning);
@@ -75,7 +74,8 @@ public:
         button_ok = new QPushButton(frame_2);
         button_ok->setObjectName(QString::fromUtf8("button_ok"));
         QIcon icon;
-        icon.addFile(QString::fromUtf8(":/Files/images/ok.png"), QSize(), QIcon::Normal, QIcon::Off);
+        icon.addFile(QString::fromUtf8(":/Files/images/ok.png"), QSize(),
+                     QIcon::Normal, QIcon::Off);
         button_ok->setIcon(icon);
 
         horizontalLayout->addWidget(button_ok);
@@ -83,35 +83,36 @@ public:
         button_cancel = new QPushButton(frame_2);
         button_cancel->setObjectName(QString::fromUtf8("button_cancel"));
         QIcon icon1;
-        icon1.addFile(QString::fromUtf8(":/Files/images/cancel.png"), QSize(), QIcon::Normal, QIcon::Off);
+        icon1.addFile(QString::fromUtf8(":/Files/images/cancel.png"), QSize(),
+                      QIcon::Normal, QIcon::Off);
         button_cancel->setIcon(icon1);
 
         horizontalLayout->addWidget(button_cancel);
 
-
         verticalLayout->addWidget(frame_2);
-
 
         retranslateUi(FormWarning);
 
         QMetaObject::connectSlotsByName(FormWarning);
-    } // setupUi
+    }  // setupUi
 
-    void retranslateUi(QWidget *FormWarning)
-    {
-        FormWarning->setWindowTitle(QCoreApplication::translate("FormWarning", "Form", nullptr));
+    void retranslateUi(QWidget* FormWarning) {
+        FormWarning->setWindowTitle(
+            QCoreApplication::translate("FormWarning", "Form", nullptr));
         label_2->setText(QString());
-        label->setText(QCoreApplication::translate("FormWarning", "Are you sure?", nullptr));
-        button_ok->setText(QCoreApplication::translate("FormWarning", "Ok", nullptr));
-        button_cancel->setText(QCoreApplication::translate("FormWarning", "Cancel", nullptr));
-    } // retranslateUi
-
+        label->setText(QCoreApplication::translate("FormWarning",
+                                                   "Are you sure?", nullptr));
+        button_ok->setText(
+            QCoreApplication::translate("FormWarning", "Ok", nullptr));
+        button_cancel->setText(
+            QCoreApplication::translate("FormWarning", "Cancel", nullptr));
+    }  // retranslateUi
 };
 
 namespace Ui {
-    class FormWarning: public Ui_FormWarning {};
-} // namespace Ui
+class FormWarning : public Ui_FormWarning {};
+}  // namespace Ui
 
 QT_END_NAMESPACE
 
-#endif // UI_FORMWARNING_H
+#endif  // UI_FORMWARNING_H

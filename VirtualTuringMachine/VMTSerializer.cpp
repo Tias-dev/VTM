@@ -1,40 +1,39 @@
 #include "VMTSerializer.h"
-#include "vmtmachines/VMTComplexMachine.h"
-#include "VMTAlphabit.h"
-#include "vmtproject.h"
-#include "VMTTransitionImpl.h"
-#include "QDebug"
+
 #include <cstring>
 
-#define TYPE_MACHINE     1
-#define TYPE_TRANSITION  2
+#include "QDebug"
+#include "VMTAlphabit.h"
+#include "VMTTransitionImpl.h"
+#include "vmtmachines/VMTComplexMachine.h"
+#include "vmtproject.h"
+
+#define TYPE_MACHINE 1
+#define TYPE_TRANSITION 2
 
 namespace {
-bool readMachineId(QDataStream& stream, qint64& id)
-{
+bool readMachineId(QDataStream& stream, qint64& id) {
     stream >> id;
     return stream.status() == QDataStream::Ok;
 }
-}
+}  // namespace
 
-VMTSerializer::VMTSerializer(QString & name) : _name(name){
-}
+VMTSerializer::VMTSerializer(QString& name) : _name(name) {}
 
-void VMTSerializer::FinalizeProject(VMTProject* project)
-{
+void VMTSerializer::FinalizeProject(VMTProject* project) {
     if (!project) {
         return;
     }
 
     const std::shared_ptr<VMTAlphabit> alphabit = project->GetAlphabit();
-    for (const std::shared_ptr<VMTComplexMachine>& machine : project->GetMachines()) {
+    for (const std::shared_ptr<VMTComplexMachine>& machine :
+         project->GetMachines()) {
         machine->ChangeAlphabit(alphabit);
     }
 }
 
-bool VMTSerializer::DeserializeTransition(ReadContext& context,
-                                          const std::shared_ptr<VMTComplexMachine>& machine)
-{
+bool VMTSerializer::DeserializeTransition(
+    ReadContext& context, const std::shared_ptr<VMTComplexMachine>& machine) {
     qint64 transitionId = 0;
     qint64 startMachineId = 0;
     qint64 finishMachineId = 0;
@@ -47,7 +46,8 @@ bool VMTSerializer::DeserializeTransition(ReadContext& context,
         return false;
     }
 
-    auto transition = std::shared_ptr<VMTTransitionImpl>(new VMTTransitionImpl(machine));
+    auto transition =
+        std::shared_ptr<VMTTransitionImpl>(new VMTTransitionImpl(machine));
     transition->Deserialize(context._stream);
 
     if (startMachineId != 0) {
@@ -56,7 +56,9 @@ bool VMTSerializer::DeserializeTransition(ReadContext& context,
             transition->AttachStartMachine(startIt->second);
             startIt->second->AddOutgoingTransition(transition);
         } else {
-            qWarning() << "VMTSerializer: transition start machine not found, id=" << startMachineId;
+            qWarning()
+                << "VMTSerializer: transition start machine not found, id="
+                << startMachineId;
         }
     }
 
@@ -66,7 +68,9 @@ bool VMTSerializer::DeserializeTransition(ReadContext& context,
             transition->AttachFinishMachine(finishIt->second);
             finishIt->second->AddIncomingTransition(transition);
         } else {
-            qWarning() << "VMTSerializer: transition finish machine not found, id=" << finishMachineId;
+            qWarning()
+                << "VMTSerializer: transition finish machine not found, id="
+                << finishMachineId;
         }
     }
 
@@ -75,7 +79,7 @@ bool VMTSerializer::DeserializeTransition(ReadContext& context,
     return true;
 }
 
-void VMTSerializer::Deserialize(VMTProject *project){
+void VMTSerializer::Deserialize(VMTProject* project) {
     project->GetCurrentMachineName() = "";
     project->GetMachines().clear();
 
@@ -83,10 +87,10 @@ void VMTSerializer::Deserialize(VMTProject *project){
 
     qDebug() << _name;
 
-    if(context._open){
+    if (context._open) {
         qDebug() << "Start deserialize";
         QString signs;
-        ReadString(context,signs);
+        ReadString(context, signs);
         project->GetAlphabit()->ReplaceString(signs);
 
         qDebug() << "Alphabit:" << project->GetAlphabit()->ToString();
@@ -95,15 +99,16 @@ void VMTSerializer::Deserialize(VMTProject *project){
 
         qDebug() << "Machine count:" << count;
 
-        for(int i=0;i<count;i++){
-            std::shared_ptr<VMTComplexMachine> machine = Deserialize(context,1,true);
+        for (int i = 0; i < count; i++) {
+            std::shared_ptr<VMTComplexMachine> machine =
+                Deserialize(context, 1, true);
         }
 
-        std::map<QString,std::shared_ptr<VMTComplexMachineInner>> inner_map;
+        std::map<QString, std::shared_ptr<VMTComplexMachineInner>> inner_map;
 
         qDebug() << "Total machines " << context._machines.size();
-        for(auto machine: context._complex){
-            if(machine){
+        for (auto machine : context._complex) {
+            if (machine) {
                 qDebug() << "add " << machine->GetName();
                 project->GetMachines().push_back(machine);
                 inner_map[machine->GetName()] = machine->GetInnerObject();
@@ -111,32 +116,33 @@ void VMTSerializer::Deserialize(VMTProject *project){
         }
 
         qDebug() << "Replace inner machines";
-        for(auto &machine: project->GetMachines()){
-            ReplaceInnerObject(true,machine,inner_map);
+        for (auto& machine : project->GetMachines()) {
+            ReplaceInnerObject(true, machine, inner_map);
         }
 
         qDebug() << "Clear garbrage";
-        for(auto &machine: project->GetMachines())
-                    ClearGarbrageTransitions(machine);
+        for (auto& machine : project->GetMachines())
+            ClearGarbrageTransitions(machine);
 
         FinalizeProject(project);
 
-    } else qDebug() << "Opps not open!";
+    } else
+        qDebug() << "Opps not open!";
     qDebug() << "Finish deserialize";
 }
 
-void VMTSerializer::Deserialize(VMTProject *project,QBuffer &buffer){
-    //QString current_name= project->GetCurrentMachineName() = "";
+void VMTSerializer::Deserialize(VMTProject* project, QBuffer& buffer) {
+    // QString current_name= project->GetCurrentMachineName() = "";
     project->GetMachines().clear();
 
     ReadContext context(buffer);
 
     qDebug() << _name;
 
-    if(context._open){
+    if (context._open) {
         qDebug() << "Start deserialize";
         QString signs;
-        ReadString(context,signs);
+        ReadString(context, signs);
         project->GetAlphabit()->ReplaceString(signs);
 
         qDebug() << "Alphabit:" << project->GetAlphabit()->ToString();
@@ -145,90 +151,101 @@ void VMTSerializer::Deserialize(VMTProject *project,QBuffer &buffer){
 
         qDebug() << "Machine count:" << count;
 
-        for(int i=0;i<count;i++){
-            std::shared_ptr<VMTComplexMachine> machine = Deserialize(context,1,true);
+        for (int i = 0; i < count; i++) {
+            std::shared_ptr<VMTComplexMachine> machine =
+                Deserialize(context, 1, true);
         }
 
-        std::map<QString,std::shared_ptr<VMTComplexMachineInner>> inner_map;
+        std::map<QString, std::shared_ptr<VMTComplexMachineInner>> inner_map;
 
         qDebug() << "Total machines " << context._machines.size();
-        for(auto machine: context._complex){
-            if(machine){
+        for (auto machine : context._complex) {
+            if (machine) {
                 qDebug() << "add " << machine->GetName();
                 project->GetMachines().push_back(machine);
                 inner_map[machine->GetName()] = machine->GetInnerObject();
             }
         }
 
-        for(auto &machine: project->GetMachines()){
-            ReplaceInnerObject(true,machine,inner_map);
+        for (auto& machine : project->GetMachines()) {
+            ReplaceInnerObject(true, machine, inner_map);
         }
 
-        for(auto &machine: project->GetMachines())
-                    ClearGarbrageTransitions(machine);
+        for (auto& machine : project->GetMachines())
+            ClearGarbrageTransitions(machine);
 
         FinalizeProject(project);
 
-    } else qDebug() << "Opps not open!";
+    } else
+        qDebug() << "Opps not open!";
 }
 
-void VMTSerializer::ReplaceInnerObject(bool recursive,std::shared_ptr<VMTComplexMachine> machine, std::map<QString,std::shared_ptr<VMTComplexMachineInner>> inner_map){
+void VMTSerializer::ReplaceInnerObject(
+    bool recursive, std::shared_ptr<VMTComplexMachine> machine,
+    std::map<QString, std::shared_ptr<VMTComplexMachineInner>> inner_map) {
     auto ptr = inner_map.find(machine->GetName());
-    if(ptr!=inner_map.end()){
-        if(machine->GetInnerObject()!=ptr->second){
+    if (ptr != inner_map.end()) {
+        if (machine->GetInnerObject() != ptr->second) {
             qDebug() << "Replacer replace:" << machine->GetName();
-            machine->SetInnerObject(ptr->second,machine);
+            machine->SetInnerObject(ptr->second, machine);
 
         } else {
             qDebug() << "Replacer skip:" << machine->GetName();
         }
 
-        if(recursive)
-            for(auto &child: machine->GetMachineCollection()){
-                std::shared_ptr<VMTComplexMachine> ptr_child = std::dynamic_pointer_cast<VMTComplexMachine>(child);
-                if(ptr_child)
-                {
-                    qDebug() << "Machine:" << ptr_child->GetName() << " has " << ptr_child->GetMachineCollection().size() << " childs";
-                    ReplaceInnerObject(false,ptr_child,inner_map);
+        if (recursive)
+            for (auto& child : machine->GetMachineCollection()) {
+                std::shared_ptr<VMTComplexMachine> ptr_child =
+                    std::dynamic_pointer_cast<VMTComplexMachine>(child);
+                if (ptr_child) {
+                    qDebug() << "Machine:" << ptr_child->GetName() << " has "
+                             << ptr_child->GetMachineCollection().size()
+                             << " childs";
+                    ReplaceInnerObject(false, ptr_child, inner_map);
                 }
             }
 
-    } else qDebug() << "Replacer not found map for " << machine->GetName();
+    } else
+        qDebug() << "Replacer not found map for " << machine->GetName();
 }
 
-std::shared_ptr<VMTComplexMachine> VMTSerializer::Deserialize(ReadContext & context, long inner_id,bool binner){
+std::shared_ptr<VMTComplexMachine> VMTSerializer::Deserialize(
+    ReadContext& context, long inner_id, bool binner) {
     std::shared_ptr<VMTComplexMachine> machine;
-    if(context._open)
-    {
+    if (context._open) {
         QString value;
-        machine = std::shared_ptr<VMTComplexMachine>(new VMTComplexMachine(value,std::shared_ptr<VMTAlphabit>(new VMTAlphabit())));
+        machine = std::shared_ptr<VMTComplexMachine>(new VMTComplexMachine(
+            value, std::shared_ptr<VMTAlphabit>(new VMTAlphabit())));
         machine->Deserialize(context._stream);
 
-
-        ReadString(context,value); machine->SetName(value);
+        ReadString(context, value);
+        machine->SetName(value);
         qDebug() << "Complex machine name:" << machine->GetName();
-        ReadString(context,value); machine->GetAlphabit()->ReplaceString(value);
-        qDebug() << "Complex machine alphabit:" << machine->GetAlphabit()->ToString();
+        ReadString(context, value);
+        machine->GetAlphabit()->ReplaceString(value);
+        qDebug() << "Complex machine alphabit:"
+                 << machine->GetAlphabit()->ToString();
 
-        if(!binner){
+        if (!binner) {
             qDebug() << "Finding inner machine";
             auto ptr = context._inner.find(inner_id);
-            if(ptr!=context._inner.end()){
-                machine->SetInnerObject(ptr->second,machine);
+            if (ptr != context._inner.end()) {
+                machine->SetInnerObject(ptr->second, machine);
                 qDebug() << "Found";
 
-            } else qDebug() << "ERROR!!! ID:" << inner_id;
+            } else
+                qDebug() << "ERROR!!! ID:" << inner_id;
         }
 
-        if(binner)
-        {
+        if (binner) {
             qDebug() << "Deserialize inner machine";
-            context._inner[inner_id]=machine->GetInnerObject();
+            context._inner[inner_id] = machine->GetInnerObject();
 
-            bool found= false;
-            for(auto &complex_machine : context._complex)
-                if(complex_machine->GetName() == machine->GetName()) found = true;
-            if(!found) {
+            bool found = false;
+            for (auto& complex_machine : context._complex)
+                if (complex_machine->GetName() == machine->GetName())
+                    found = true;
+            if (!found) {
                 context._complex.insert(machine);
             }
 
@@ -236,76 +253,89 @@ std::shared_ptr<VMTComplexMachine> VMTSerializer::Deserialize(ReadContext & cont
             context._stream >> total_components;
             qDebug() << "Total components:" << total_components;
 
-            while(total_components>0){
+            while (total_components > 0) {
                 qint32 type_id;
                 context._stream >> type_id;
                 qDebug() << "MACHINE_TYPE:" << type_id;
                 total_components--;
 
-                switch(type_id){
-                case TYPE_MACHINE:
-                {
-                    qint64 id; context._stream >> id;
-                    qint32 machine_type; context._stream >> machine_type;
-                    qDebug() << "\n---------------Machine id:" << id << " Type:"<< machine_type;
+                switch (type_id) {
+                    case TYPE_MACHINE: {
+                        qint64 id;
+                        context._stream >> id;
+                        qint32 machine_type;
+                        context._stream >> machine_type;
+                        qDebug() << "\n---------------Machine id:" << id
+                                 << " Type:" << machine_type;
 
-                    if(machine_type==IVMTMachine::MachineType::MT_COMPLEX){
-                         qDebug() << "\n---------------Machine   : complex";
-                        bool inner_local; context._stream >> inner_local;
-                        qint64 inner_id_local; context._stream >> inner_id_local;
-                        std::shared_ptr<VMTComplexMachine> stub =Deserialize(context,inner_id_local,inner_local);
-                        stub->SetParent(machine);
-                        auto ptr = context._machines.find(id);
-                        if(ptr!=context._machines.end()){
-                            qDebug() << "Insert  complex old id=" << id;
-                            machine->AddMachine(ptr->second);
-                        } else {
-                            qDebug() << "Insert complex new id=" << id;
-                            context._machines[id]=stub;
-                            machine->AddMachine(stub);
-                        }
-
-                    } else {
-                        qDebug() << "Deserialize machine id=" << id;
-                        if(machine_type==0) {
-                            qWarning() << "VMTSerializer: invalid machine type";
-                            return machine;
-                        }
-                        std::shared_ptr<IVMTMachine> stub = VMTMachineStub::CreateMachineByID((IVMTMachine::MachineType)machine_type,machine);
-                        if(stub)
-                        {
-                            qDebug() << "start deserialize";
-                            stub->Deserialize(context._stream);
-                            qDebug() << "end deserialize";
+                        if (machine_type ==
+                            IVMTMachine::MachineType::MT_COMPLEX) {
+                            qDebug() << "\n---------------Machine   : complex";
+                            bool inner_local;
+                            context._stream >> inner_local;
+                            qint64 inner_id_local;
+                            context._stream >> inner_id_local;
+                            std::shared_ptr<VMTComplexMachine> stub =
+                                Deserialize(context, inner_id_local,
+                                            inner_local);
+                            stub->SetParent(machine);
                             auto ptr = context._machines.find(id);
-                            if(ptr!=context._machines.end()){
-                                qDebug() << "Add machine old id=" << id;
+                            if (ptr != context._machines.end()) {
+                                qDebug() << "Insert  complex old id=" << id;
                                 machine->AddMachine(ptr->second);
                             } else {
-                                qDebug() << "Add machine new id=" << id;
-                                context._machines[id]=stub;
+                                qDebug() << "Insert complex new id=" << id;
+                                context._machines[id] = stub;
                                 machine->AddMachine(stub);
                             }
+
                         } else {
-                            qWarning() << "VMTSerializer: cannot create machine type" << machine_type;
+                            qDebug() << "Deserialize machine id=" << id;
+                            if (machine_type == 0) {
+                                qWarning()
+                                    << "VMTSerializer: invalid machine type";
+                                return machine;
+                            }
+                            std::shared_ptr<IVMTMachine> stub =
+                                VMTMachineStub::CreateMachineByID(
+                                    (IVMTMachine::MachineType)machine_type,
+                                    machine);
+                            if (stub) {
+                                qDebug() << "start deserialize";
+                                stub->Deserialize(context._stream);
+                                qDebug() << "end deserialize";
+                                auto ptr = context._machines.find(id);
+                                if (ptr != context._machines.end()) {
+                                    qDebug() << "Add machine old id=" << id;
+                                    machine->AddMachine(ptr->second);
+                                } else {
+                                    qDebug() << "Add machine new id=" << id;
+                                    context._machines[id] = stub;
+                                    machine->AddMachine(stub);
+                                }
+                            } else {
+                                qWarning() << "VMTSerializer: cannot create "
+                                              "machine type"
+                                           << machine_type;
+                                return machine;
+                            }
+                        }
+                        qDebug() << "\n--------------- End deserialize machine";
+
+                        break;
+                    }
+                    case TYPE_TRANSITION: {
+                        if (!DeserializeTransition(context, machine)) {
+                            qWarning() << "VMTSerializer: failed to "
+                                          "deserialize transition";
                             return machine;
                         }
+                        break;
                     }
-                    qDebug() << "\n--------------- End deserialize machine" ;
-
-                    break;
-                }
-                case TYPE_TRANSITION:
-                {
-                    if (!DeserializeTransition(context, machine)) {
-                        qWarning() << "VMTSerializer: failed to deserialize transition";
+                    default:
+                        qWarning() << "VMTSerializer: unknown component type"
+                                   << type_id;
                         return machine;
-                    }
-                    break;
-                }
-                default:
-                    qWarning() << "VMTSerializer: unknown component type" << type_id;
-                    return machine;
                 }
             }
         }
@@ -314,48 +344,46 @@ std::shared_ptr<VMTComplexMachine> VMTSerializer::Deserialize(ReadContext & cont
     return machine;
 }
 
-void VMTSerializer::Serialize(VMTProject *project){
+void VMTSerializer::Serialize(VMTProject* project) {
     WriteContext context(_name);
 
     qDebug() << "context created";
-    if(context._open){
-         qDebug() << "context opened";
-        WriteString(context,project->GetAlphabit()->ToString());
-        context._stream << (qint64) project->GetMachines().size();
+    if (context._open) {
+        qDebug() << "context opened";
+        WriteString(context, project->GetAlphabit()->ToString());
+        context._stream << (qint64)project->GetMachines().size();
 
-        for(auto machine : project->GetMachines()){
-             qDebug() << "serialize mschine:" << machine->GetName();
+        for (auto machine : project->GetMachines()) {
+            qDebug() << "serialize mschine:" << machine->GetName();
             context._inner[machine->GetInnerObject()] = context._inner_id++;
-            Serialize(context,machine,true);
+            Serialize(context, machine, true);
         }
     }
 }
 
-void VMTSerializer::Serialize(VMTProject *project,QBuffer& buffer){
+void VMTSerializer::Serialize(VMTProject* project, QBuffer& buffer) {
     WriteContext context(buffer);
 
-    if(context._open){
-        WriteString(context,project->GetAlphabit()->ToString());
-        context._stream << (qint64) project->GetMachines().size();
+    if (context._open) {
+        WriteString(context, project->GetAlphabit()->ToString());
+        context._stream << (qint64)project->GetMachines().size();
 
-        for(auto machine : project->GetMachines()){
+        for (auto machine : project->GetMachines()) {
             context._inner[machine->GetInnerObject()] = context._inner_id++;
-            Serialize(context,machine,true);
+            Serialize(context, machine, true);
         }
     }
 }
 
-void VMTSerializer::ReadString(ReadContext & context, QString& str){
-    if(context._open)
-    {
+void VMTSerializer::ReadString(ReadContext& context, QString& str) {
+    if (context._open) {
         short int length;
         context._stream >> length;
 
-        if(length>0)
-        {
-            char * array = new char[length+1];
-            std::memset(array,0,length+1);
-            context._stream.readRawData(array,length);
+        if (length > 0) {
+            char* array = new char[length + 1];
+            std::memset(array, 0, length + 1);
+            context._stream.readRawData(array, length);
 
             str = QString::fromUtf8((const char*)array);
             delete[] array;
@@ -363,115 +391,108 @@ void VMTSerializer::ReadString(ReadContext & context, QString& str){
     }
 }
 
-void VMTSerializer::WriteString(WriteContext & context, const QString& str){
-    if(context._open)
-    {
-        //context._stream << (short int)str.length();
+void VMTSerializer::WriteString(WriteContext& context, const QString& str) {
+    if (context._open) {
+        // context._stream << (short int)str.length();
         QByteArray array = str.toUtf8();
         context._stream << (short int)array.length();
-        const char* carray =  array.constData();
+        const char* carray = array.constData();
         for (int i = 0; i < array.length(); i++) {
-            context._stream << (qint8) (carray[i]);
+            context._stream << (qint8)(carray[i]);
             // context._stream << (qint8)array[i];//(str[i]);
-
         }
-
     }
 }
 
-void VMTSerializer::Serialize(WriteContext & context,std::shared_ptr<VMTComplexMachine> machine,bool bInner)
-{
-    if(context._open)
-    {
+void VMTSerializer::Serialize(WriteContext& context,
+                              std::shared_ptr<VMTComplexMachine> machine,
+                              bool bInner) {
+    if (context._open) {
         machine->Serialize(context._stream);
 
-        WriteString(context,machine->GetName());
-        WriteString(context,machine->GetAlphabit()->ToString());
+        WriteString(context, machine->GetName());
+        WriteString(context, machine->GetAlphabit()->ToString());
 
-
-
-        if(!bInner) return;
+        if (!bInner) return;
 
         qDebug() << "Serialize machine structure:" << machine->GetName();
         // fill machine hash
         qint64 total_components = 0;
-        for(auto &stub : machine->GetMachineCollection())
-        {
+        for (auto& stub : machine->GetMachineCollection()) {
             auto find = context._machines.find(stub);
-            if(find==context._machines.end())
-                context._machines[stub]=context._machine_id++;
+            if (find == context._machines.end())
+                context._machines[stub] = context._machine_id++;
 
-            total_components	++;
+            total_components++;
         }
         // fill transition hash
 
-        for(auto &stub : machine->GetTransitionCollection())
-        {
+        for (auto& stub : machine->GetTransitionCollection()) {
             auto find = context._transitions.find(stub);
-            if(find==context._transitions.end())
-                context._transitions[stub]=context._transition_id++;
-            total_components ++;
+            if (find == context._transitions.end())
+                context._transitions[stub] = context._transition_id++;
+            total_components++;
         }
         context._stream << (qint64)total_components;
 
+        for (auto stub : machine->GetMachineCollection()) {
+            long nID = context._machines[stub];
+            context._stream << (qint32)TYPE_MACHINE;
+            context._stream << (qint64)nID;
+            context._stream << (qint32)stub->GetID();
 
-        for(auto stub : machine->GetMachineCollection())
-        {
-            long nID =context._machines[stub];
-            context._stream << (qint32) TYPE_MACHINE;
-            context._stream << (qint64) nID;
-            context._stream << (qint32) stub->GetID();
-
-            if (stub->GetID()==IVMTMachine::MachineType::MT_COMPLEX)
-            {
-                qDebug() << "----- Serialize complex machine:" << stub->GetName();
-                std::shared_ptr<VMTComplexMachine> ptr = std::dynamic_pointer_cast<VMTComplexMachine>(stub);
-                if(ptr)
-                {
-                    if(context._inner.find(ptr->GetInnerObject())!=context._inner.end())
-                    {
+            if (stub->GetID() == IVMTMachine::MachineType::MT_COMPLEX) {
+                qDebug() << "----- Serialize complex machine:"
+                         << stub->GetName();
+                std::shared_ptr<VMTComplexMachine> ptr =
+                    std::dynamic_pointer_cast<VMTComplexMachine>(stub);
+                if (ptr) {
+                    if (context._inner.find(ptr->GetInnerObject()) !=
+                        context._inner.end()) {
                         context._stream << false;
-                        context._stream << (qint64) context._inner[ptr->GetInnerObject()];
-                        Serialize(context,ptr,false);
-                    } else
-                    {
+                        context._stream
+                            << (qint64)context._inner[ptr->GetInnerObject()];
+                        Serialize(context, ptr, false);
+                    } else {
                         context._stream << true;
                         context._stream << (qint64)context._inner_id;
-                        qDebug() << "Add inner:" << context._inner_id << " for:" << ptr->GetName();
-                        context._inner[ptr->GetInnerObject()] = context._inner_id++;
-                        Serialize(context,ptr,true);
+                        qDebug() << "Add inner:" << context._inner_id
+                                 << " for:" << ptr->GetName();
+                        context._inner[ptr->GetInnerObject()] =
+                            context._inner_id++;
+                        Serialize(context, ptr, true);
                     }
-                    qDebug() << "----- Done serialize complex machine:" << stub->GetName();
+                    qDebug() << "----- Done serialize complex machine:"
+                             << stub->GetName();
                 }
-            } else
-            {
-                qDebug() << "----- Serialize simple machine:" << stub->GetName();
+            } else {
+                qDebug() << "----- Serialize simple machine:"
+                         << stub->GetName();
                 stub->Serialize(context._stream);
-                qDebug() << "----- Done serialize simple machine:" << stub->GetName();
+                qDebug() << "----- Done serialize simple machine:"
+                         << stub->GetName();
             }
         }
 
         // save transitions
-        for(auto stub : machine->GetTransitionCollection())
-        {
+        for (auto stub : machine->GetTransitionCollection()) {
             long nID = context._transitions[stub];
 
             // save transition type
-            context._stream << (qint32) TYPE_TRANSITION;
-            context._stream << (qint64) nID;
+            context._stream << (qint32)TYPE_TRANSITION;
+            context._stream << (qint64)nID;
 
-            if(auto ptr=stub->GetStartMachine().lock())
-            {
+            if (auto ptr = stub->GetStartMachine().lock()) {
                 context._stream << (qint64)context._machines[ptr];
                 qDebug() << "Ptr" << (qint64)context._machines[ptr];
-            } else context._stream << (qint64)0;
+            } else
+                context._stream << (qint64)0;
 
-
-            if(auto ptr=stub->GetFinishMachine().lock())
-            {
+            if (auto ptr = stub->GetFinishMachine().lock()) {
                 context._stream << (qint64)context._machines[ptr];
                 qDebug() << "Ptr" << (qint64)context._machines[ptr];
-            } else context._stream << (qint64)0;
+            } else
+                context._stream << (qint64)0;
 
             // save transition internal data
             stub->Serialize(context._stream);
@@ -479,20 +500,22 @@ void VMTSerializer::Serialize(WriteContext & context,std::shared_ptr<VMTComplexM
     }
 }
 
-void VMTSerializer::ClearGarbrageTransitions(std::shared_ptr<VMTComplexMachine> machine){
-    for(std::shared_ptr<IVMTMachine> m: machine->GetMachineCollection()){
+void VMTSerializer::ClearGarbrageTransitions(
+    std::shared_ptr<VMTComplexMachine> machine) {
+    for (std::shared_ptr<IVMTMachine> m : machine->GetMachineCollection()) {
+        bool removed = true;
 
-        bool removed  = true;
-
-        while(removed){
+        while (removed) {
             removed = false;
-            for(const std::weak_ptr<IVMTTransition>& t: m->GetIncomingTransitions()){
+            for (const std::weak_ptr<IVMTTransition>& t :
+                 m->GetIncomingTransitions()) {
                 bool found = false;
 
-                if(auto tptr = t.lock()){
-                    for(std::shared_ptr<IVMTTransition> tc: machine->GetTransitionCollection())  if(tc==tptr) found = true;
-                    if(!found)
-                    {
+                if (auto tptr = t.lock()) {
+                    for (std::shared_ptr<IVMTTransition> tc :
+                         machine->GetTransitionCollection())
+                        if (tc == tptr) found = true;
+                    if (!found) {
                         m->RemoveIncomingTransition(tptr);
                         qDebug() << "!!!!!!!!!!! Removed garbrage";
                         removed = true;
@@ -502,17 +525,19 @@ void VMTSerializer::ClearGarbrageTransitions(std::shared_ptr<VMTComplexMachine> 
             }
         }
 
-        removed  = true;
+        removed = true;
 
-        while(removed){
+        while (removed) {
             removed = false;
-            for(const std::weak_ptr<IVMTTransition> &t: m->GetOutgoingTransitions()){
+            for (const std::weak_ptr<IVMTTransition>& t :
+                 m->GetOutgoingTransitions()) {
                 bool found = false;
 
-                if(auto tptr = t.lock()){
-                    for(std::shared_ptr<IVMTTransition> &tc: machine->GetTransitionCollection())  if(tc==tptr) found = true;
-                    if(!found)
-                    {
+                if (auto tptr = t.lock()) {
+                    for (std::shared_ptr<IVMTTransition>& tc :
+                         machine->GetTransitionCollection())
+                        if (tc == tptr) found = true;
+                    if (!found) {
                         m->RemoveOutgoingTransition(tptr);
                         qDebug() << "!!!!!!!!!!! Removed garbrage";
                         removed = true;
@@ -524,6 +549,4 @@ void VMTSerializer::ClearGarbrageTransitions(std::shared_ptr<VMTComplexMachine> 
     }
 }
 
-VMTSerializer::~VMTSerializer(){
-
-}
+VMTSerializer::~VMTSerializer() {}

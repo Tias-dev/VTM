@@ -1,11 +1,11 @@
-#include "mainwindow.h"
-#include "vmttheme.h"
 #include <QApplication>
 #include <QIcon>
-#include "configuration.h"
 
-int main(int argc, char *argv[])
-{
+#include "configuration.h"
+#include "mainwindow.h"
+#include "vmttheme.h"
+
+int main(int argc, char* argv[]) {
     QApplication a(argc, argv);
 
     QApplication::setApplicationName("Virtual Turing Machine");

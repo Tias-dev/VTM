@@ -9,8 +9,8 @@
 #ifndef UI_FORMCOMPLEXMACHINES_H
 #define UI_FORMCOMPLEXMACHINES_H
 
-#include <QtCore/QVariant>
 #include <QAction>
+#include <QtCore/QVariant>
 #include <QtWidgets/QApplication>
 #include <QtWidgets/QButtonGroup>
 #include <QtWidgets/QFrame>
@@ -20,16 +20,15 @@
 
 QT_BEGIN_NAMESPACE
 
-class Ui_FormComplexMachines
-{
-public:
-    QHBoxLayout *horizontalLayout;
-    QFrame *_frame;
+class Ui_FormComplexMachines {
+   public:
+    QHBoxLayout* horizontalLayout;
+    QFrame* _frame;
 
-    void setupUi(QWidget *FormComplexMachines)
-    {
+    void setupUi(QWidget* FormComplexMachines) {
         if (FormComplexMachines->objectName().isEmpty())
-            FormComplexMachines->setObjectName(QStringLiteral("FormComplexMachines"));
+            FormComplexMachines->setObjectName(
+                QStringLiteral("FormComplexMachines"));
         FormComplexMachines->resize(400, 108);
         horizontalLayout = new QHBoxLayout(FormComplexMachines);
         horizontalLayout->setObjectName(QStringLiteral("horizontalLayout"));
@@ -42,23 +41,21 @@ public:
 
         horizontalLayout->addWidget(_frame);
 
-
         retranslateUi(FormComplexMachines);
 
         QMetaObject::connectSlotsByName(FormComplexMachines);
-    } // setupUi
+    }  // setupUi
 
-    void retranslateUi(QWidget *FormComplexMachines)
-    {
-        FormComplexMachines->setWindowTitle(QApplication::translate("FormComplexMachines", "Form", Q_NULLPTR));
-    } // retranslateUi
-
+    void retranslateUi(QWidget* FormComplexMachines) {
+        FormComplexMachines->setWindowTitle(
+            QApplication::translate("FormComplexMachines", "Form", Q_NULLPTR));
+    }  // retranslateUi
 };
 
 namespace Ui {
-    class FormComplexMachines: public Ui_FormComplexMachines {};
-} // namespace Ui
+class FormComplexMachines : public Ui_FormComplexMachines {};
+}  // namespace Ui
 
 QT_END_NAMESPACE
 
-#endif // UI_FORMCOMPLEXMACHINES_H
+#endif  // UI_FORMCOMPLEXMACHINES_H

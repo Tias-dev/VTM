@@ -1,5 +1,16 @@
 #include "VMTJsonSerializer.h"
 
+#include <QDateTime>
+#include <QDebug>
+#include <QFile>
+#include <QJsonArray>
+#include <QJsonDocument>
+#include <QJsonObject>
+#include <QMap>
+#include <QSet>
+#include <QUuid>
+#include <functional>
+
 #include "VMTAlphabit.h"
 #include "VMTTransitionImpl.h"
 #include "vmtmachines/VMTComplexMachine.h"
@@ -8,44 +19,38 @@
 #include "vmtmachines/VMTMachineStub.h"
 #include "vmtproject.h"
 
-#include <QDateTime>
-#include <QFile>
-#include <QJsonArray>
-#include <QJsonDocument>
-#include <QJsonObject>
-#include <QMap>
-#include <QSet>
-#include <QUuid>
-#include <QDebug>
-#include <functional>
-
 namespace {
 
 const int SCHEMA_VERSION = 1;
 
-QString newId()
-{
-    return QUuid::createUuid().toString(QUuid::WithoutBraces);
-}
+QString newId() { return QUuid::createUuid().toString(QUuid::WithoutBraces); }
 
-QString machineTypeToString(IVMTMachine::MachineType type)
-{
+QString machineTypeToString(IVMTMachine::MachineType type) {
     switch (type) {
-    case IVMTMachine::MT_START: return QStringLiteral("start");
-    case IVMTMachine::MT_FINISH: return QStringLiteral("finish");
-    case IVMTMachine::MT_LEFT: return QStringLiteral("left");
-    case IVMTMachine::MT_RIGHT: return QStringLiteral("right");
-    case IVMTMachine::MT_LEFT_WORD: return QStringLiteral("leftWord");
-    case IVMTMachine::MT_RIGHT_WORD: return QStringLiteral("rightWord");
-    case IVMTMachine::MT_WRITE: return QStringLiteral("write");
-    case IVMTMachine::MT_COPY: return QStringLiteral("copy");
-    case IVMTMachine::MT_COMPLEX: return QStringLiteral("complex");
-    default: return QStringLiteral("start");
+        case IVMTMachine::MT_START:
+            return QStringLiteral("start");
+        case IVMTMachine::MT_FINISH:
+            return QStringLiteral("finish");
+        case IVMTMachine::MT_LEFT:
+            return QStringLiteral("left");
+        case IVMTMachine::MT_RIGHT:
+            return QStringLiteral("right");
+        case IVMTMachine::MT_LEFT_WORD:
+            return QStringLiteral("leftWord");
+        case IVMTMachine::MT_RIGHT_WORD:
+            return QStringLiteral("rightWord");
+        case IVMTMachine::MT_WRITE:
+            return QStringLiteral("write");
+        case IVMTMachine::MT_COPY:
+            return QStringLiteral("copy");
+        case IVMTMachine::MT_COMPLEX:
+            return QStringLiteral("complex");
+        default:
+            return QStringLiteral("start");
     }
 }
 
-IVMTMachine::MachineType machineTypeFromString(const QString& type)
-{
+IVMTMachine::MachineType machineTypeFromString(const QString& type) {
     if (type == QLatin1String("finish")) return IVMTMachine::MT_FINISH;
     if (type == QLatin1String("left")) return IVMTMachine::MT_LEFT;
     if (type == QLatin1String("right")) return IVMTMachine::MT_RIGHT;
@@ -57,21 +62,19 @@ IVMTMachine::MachineType machineTypeFromString(const QString& type)
     return IVMTMachine::MT_START;
 }
 
-QJsonObject pointToJson(const QPoint& p)
-{
+QJsonObject pointToJson(const QPoint& p) {
     QJsonObject o;
     o.insert(QStringLiteral("x"), p.x());
     o.insert(QStringLiteral("y"), p.y());
     return o;
 }
 
-QPoint pointFromJson(const QJsonObject& o)
-{
-    return QPoint(o.value(QStringLiteral("x")).toInt(), o.value(QStringLiteral("y")).toInt());
+QPoint pointFromJson(const QJsonObject& o) {
+    return QPoint(o.value(QStringLiteral("x")).toInt(),
+                  o.value(QStringLiteral("y")).toInt());
 }
 
-std::vector<QPoint> routingFromJson(const QJsonArray& arr)
-{
+std::vector<QPoint> routingFromJson(const QJsonArray& arr) {
     std::vector<QPoint> points;
     points.reserve(arr.size());
     for (const QJsonValue& pv : arr) {
@@ -83,15 +86,14 @@ std::vector<QPoint> routingFromJson(const QJsonArray& arr)
 void linkTransition(const std::shared_ptr<VMTTransitionImpl>& transition,
                     const std::shared_ptr<IVMTMachine>& start,
                     const std::shared_ptr<IVMTMachine>& finish,
-                    const QJsonObject& transitionJson)
-{
+                    const QJsonObject& transitionJson) {
     transition->AttachStartMachine(start);
     transition->AttachFinishMachine(finish);
     start->AddOutgoingTransition(transition);
     finish->AddIncomingTransition(transition);
 
-    const std::vector<QPoint> route =
-        routingFromJson(transitionJson.value(QStringLiteral("routingPoints")).toArray());
+    const std::vector<QPoint> route = routingFromJson(
+        transitionJson.value(QStringLiteral("routingPoints")).toArray());
     if (route.size() >= 2) {
         transition->SetCommittedRoutingPolyline(route);
     } else {
@@ -99,16 +101,14 @@ void linkTransition(const std::shared_ptr<VMTTransitionImpl>& transition,
     }
 }
 
-std::shared_ptr<VMTAlphabit> alphabitFromString(const QString& alphabet)
-{
+std::shared_ptr<VMTAlphabit> alphabitFromString(const QString& alphabet) {
     auto a = std::make_shared<VMTAlphabit>();
     a->ReplaceString(alphabet);
     return a;
 }
 
 QJsonArray enabledSignsToJson(VMTTransitionConditions& conditions,
-                              const std::shared_ptr<VMTAlphabit>& alphabit)
-{
+                              const std::shared_ptr<VMTAlphabit>& alphabit) {
     QJsonArray arr;
     const QString all = alphabit->ToString();
     for (const QChar& ch : all) {
@@ -120,9 +120,7 @@ QJsonArray enabledSignsToJson(VMTTransitionConditions& conditions,
 }
 
 void applyEnabledSigns(VMTTransitionConditions& conditions,
-                       const QJsonArray& signs,
-                       IVMTEnvironment* env)
-{
+                       const QJsonArray& signs, IVMTEnvironment* env) {
     QString alphabit = conditions.GetAlphabit()->ToString();
     for (const QChar& ch : alphabit) {
         conditions.SetEnable(ch.toLatin1(), false, env);
@@ -135,10 +133,9 @@ void applyEnabledSigns(VMTTransitionConditions& conditions,
     }
 }
 
-QJsonObject machineToJson(IVMTMachine* machine,
-                          const QMap<IVMTMachine*, QString>& machineIds,
-                          const QMap<std::shared_ptr<VMTComplexMachineInner>, QString>& innerIds)
-{
+QJsonObject machineToJson(
+    IVMTMachine* machine, const QMap<IVMTMachine*, QString>& machineIds,
+    const QMap<std::shared_ptr<VMTComplexMachineInner>, QString>& innerIds) {
     QJsonObject o;
     o.insert(QStringLiteral("id"), machineIds.value(machine));
     o.insert(QStringLiteral("type"), machineTypeToString(machine->GetID()));
@@ -161,18 +158,18 @@ QJsonObject machineToJson(IVMTMachine* machine,
     return o;
 }
 
-QJsonObject bodyToJson(const QString& bodyId,
-                       const QString& bodyName,
-                       VMTComplexMachineInner* inner,
-                       const std::shared_ptr<VMTAlphabit>& projectAlphabit,
-                       QMap<IVMTMachine*, QString>& machineIds,
-                       const QMap<std::shared_ptr<VMTComplexMachineInner>, QString>& innerIds)
-{
+QJsonObject bodyToJson(
+    const QString& bodyId, const QString& bodyName,
+    VMTComplexMachineInner* inner,
+    const std::shared_ptr<VMTAlphabit>& projectAlphabit,
+    QMap<IVMTMachine*, QString>& machineIds,
+    const QMap<std::shared_ptr<VMTComplexMachineInner>, QString>& innerIds) {
     QJsonObject body;
     body.insert(QStringLiteral("id"), bodyId);
     body.insert(QStringLiteral("name"), bodyName);
     body.insert(QStringLiteral("alphabet"),
-                inner->GetAlphabit() ? inner->GetAlphabit()->ToString() : projectAlphabit->ToString());
+                inner->GetAlphabit() ? inner->GetAlphabit()->ToString()
+                                     : projectAlphabit->ToString());
 
     QJsonArray machines;
     for (const auto& m : inner->GetMachineCollection()) {
@@ -192,8 +189,10 @@ QJsonObject bodyToJson(const QString& bodyId,
 
         QJsonObject tr;
         tr.insert(QStringLiteral("id"), newId());
-        tr.insert(QStringLiteral("startMachineId"), machineIds.value(start.get()));
-        tr.insert(QStringLiteral("finishMachineId"), machineIds.value(finish.get()));
+        tr.insert(QStringLiteral("startMachineId"),
+                  machineIds.value(start.get()));
+        tr.insert(QStringLiteral("finishMachineId"),
+                  machineIds.value(finish.get()));
 
         QJsonArray route;
         for (const QPoint& p : t->GetCommittedRoutingPolyline()) {
@@ -212,21 +211,17 @@ QJsonObject bodyToJson(const QString& bodyId,
     return body;
 }
 
-} // namespace
+}  // namespace
 
 VMTJsonSerializer::VMTJsonSerializer(const QString& fileName)
-    : _file_name(fileName)
-{
+    : _file_name(fileName) {}
+
+bool VMTJsonSerializer::isJsonPath(const QString& path) {
+    return path.endsWith(QLatin1String(".json"), Qt::CaseInsensitive) ||
+           path.endsWith(QLatin1String(".vmt.json"), Qt::CaseInsensitive);
 }
 
-bool VMTJsonSerializer::isJsonPath(const QString& path)
-{
-    return path.endsWith(QLatin1String(".json"), Qt::CaseInsensitive)
-           || path.endsWith(QLatin1String(".vmt.json"), Qt::CaseInsensitive);
-}
-
-bool VMTJsonSerializer::serialize(VMTProject* project) const
-{
+bool VMTJsonSerializer::serialize(VMTProject* project) const {
     if (!project) return false;
 
     QMap<std::shared_ptr<VMTComplexMachineInner>, QString> innerIds;
@@ -236,8 +231,9 @@ bool VMTJsonSerializer::serialize(VMTProject* project) const
 
     QMap<std::shared_ptr<VMTComplexMachineInner>, QString> innerNames;
 
-    const auto registerInner = [&](const std::shared_ptr<VMTComplexMachineInner>& inner,
-                                   const QString& defaultName) -> QString {
+    const auto registerInner =
+        [&](const std::shared_ptr<VMTComplexMachineInner>& inner,
+            const QString& defaultName) -> QString {
         if (!inner) return QString();
         if (!innerIds.contains(inner)) {
             innerIds.insert(inner, newId());
@@ -246,7 +242,8 @@ bool VMTJsonSerializer::serialize(VMTProject* project) const
         return innerIds.value(inner);
     };
 
-    std::function<void(const std::shared_ptr<VMTComplexMachineInner>&, const QString&)>
+    std::function<void(const std::shared_ptr<VMTComplexMachineInner>&,
+                       const QString&)>
         scanInner;
     scanInner = [&](const std::shared_ptr<VMTComplexMachineInner>& inner,
                     const QString& defaultName) {
@@ -262,7 +259,8 @@ bool VMTJsonSerializer::serialize(VMTProject* project) const
     };
 
     QSet<VMTComplexMachineInner*> exported;
-    std::function<void(const std::shared_ptr<VMTComplexMachineInner>&, const QString&)>
+    std::function<void(const std::shared_ptr<VMTComplexMachineInner>&,
+                       const QString&)>
         emitBody;
     emitBody = [&](const std::shared_ptr<VMTComplexMachineInner>& inner,
                    const QString& defaultName) {
@@ -271,7 +269,8 @@ bool VMTJsonSerializer::serialize(VMTProject* project) const
         const QString bodyId = innerIds.value(inner);
         const QString bodyName = innerNames.value(inner, defaultName);
         bodiesArr.append(bodyToJson(bodyId, bodyName, inner.get(),
-                                    project->GetAlphabit(), machineIds, innerIds));
+                                    project->GetAlphabit(), machineIds,
+                                    innerIds));
         for (const auto& m : inner->GetMachineCollection()) {
             if (!m || m->GetID() != IVMTMachine::MT_COMPLEX) continue;
             const auto cm = std::dynamic_pointer_cast<VMTComplexMachine>(m);
@@ -313,8 +312,7 @@ bool VMTJsonSerializer::serialize(VMTProject* project) const
     return true;
 }
 
-bool VMTJsonSerializer::deserialize(VMTProject* project) const
-{
+bool VMTJsonSerializer::deserialize(VMTProject* project) const {
     if (!project) return false;
 
     QFile file(_file_name);
@@ -326,18 +324,23 @@ bool VMTJsonSerializer::deserialize(VMTProject* project) const
     if (!doc.isObject()) return false;
     const QJsonObject root = doc.object();
 
-    const QString alphabet = root.value(QStringLiteral("alphabet")).toString(QLatin1String(" 01"));
+    const QString alphabet =
+        root.value(QStringLiteral("alphabet")).toString(QLatin1String(" 01"));
     project->SetAlphabit(alphabitFromString(alphabet));
-    project->GetName() = root.value(QStringLiteral("name")).toString(project->GetName());
+    project->GetName() =
+        root.value(QStringLiteral("name")).toString(project->GetName());
 
     QMap<QString, std::shared_ptr<VMTComplexMachineInner>> bodiesById;
     QMap<QString, QJsonObject> bodyJsonById;
 
-    for (const QJsonValue& bv : root.value(QStringLiteral("bodies")).toArray()) {
+    for (const QJsonValue& bv :
+         root.value(QStringLiteral("bodies")).toArray()) {
         const QJsonObject b = bv.toObject();
         const QString id = b.value(QStringLiteral("id")).toString();
-        const QString bodyName = b.value(QStringLiteral("name")).toString(QStringLiteral("Machine"));
-        const QString bodyAlphabet = b.value(QStringLiteral("alphabet")).toString(alphabet);
+        const QString bodyName =
+            b.value(QStringLiteral("name")).toString(QStringLiteral("Machine"));
+        const QString bodyAlphabet =
+            b.value(QStringLiteral("alphabet")).toString(alphabet);
         auto inner = std::make_shared<VMTComplexMachineInner>(
             bodyName, alphabitFromString(bodyAlphabet));
         bodiesById.insert(id, inner);
@@ -352,11 +355,13 @@ bool VMTJsonSerializer::deserialize(VMTProject* project) const
 
         const QString bodyName = b.value(QStringLiteral("name")).toString();
         const std::shared_ptr<VMTAlphabit> bodyAlphabit = inner->GetAlphabit();
-        auto shell = std::make_shared<VMTComplexMachine>(bodyName, bodyAlphabit);
+        auto shell =
+            std::make_shared<VMTComplexMachine>(bodyName, bodyAlphabit);
         shell->SetInnerObject(inner, shell);
 
         QMap<QString, std::shared_ptr<IVMTMachine>> idMap;
-        for (const QJsonValue& mv : b.value(QStringLiteral("machines")).toArray()) {
+        for (const QJsonValue& mv :
+             b.value(QStringLiteral("machines")).toArray()) {
             const QJsonObject mo = mv.toObject();
             const QString id = mo.value(QStringLiteral("id")).toString();
             const QString type = mo.value(QStringLiteral("type")).toString();
@@ -364,15 +369,18 @@ bool VMTJsonSerializer::deserialize(VMTProject* project) const
 
             std::shared_ptr<IVMTMachine> machine;
             if (mt == IVMTMachine::MT_WRITE) {
-                const QString sign = mo.value(QStringLiteral("sign")).toString();
-                const char ch = sign.isEmpty()
-                    ? bodyAlphabit->GetLambda()
-                    : sign[0].toLatin1();
+                const QString sign =
+                    mo.value(QStringLiteral("sign")).toString();
+                const char ch = sign.isEmpty() ? bodyAlphabit->GetLambda()
+                                               : sign[0].toLatin1();
                 machine = std::make_shared<VMTMachineAlpha>(ch, shell);
             } else if (mt == IVMTMachine::MT_COMPLEX) {
-                const QString cmName = mo.value(QStringLiteral("name")).toString(bodyName);
-                auto cm = std::make_shared<VMTComplexMachine>(cmName, bodyAlphabit);
-                const QString innerId = mo.value(QStringLiteral("innerId")).toString();
+                const QString cmName =
+                    mo.value(QStringLiteral("name")).toString(bodyName);
+                auto cm =
+                    std::make_shared<VMTComplexMachine>(cmName, bodyAlphabit);
+                const QString innerId =
+                    mo.value(QStringLiteral("innerId")).toString();
                 if (bodiesById.contains(innerId)) {
                     cm->SetInnerObject(bodiesById.value(innerId), shell);
                 }
@@ -382,18 +390,24 @@ bool VMTJsonSerializer::deserialize(VMTProject* project) const
             }
             if (!machine) continue;
 
-            machine->Move(pointFromJson(mo.value(QStringLiteral("center")).toObject()), nullptr);
-            machine->GetSize() = pointFromJson(mo.value(QStringLiteral("size")).toObject());
+            machine->Move(
+                pointFromJson(mo.value(QStringLiteral("center")).toObject()),
+                nullptr);
+            machine->GetSize() =
+                pointFromJson(mo.value(QStringLiteral("size")).toObject());
             machine->SetPower(mo.value(QStringLiteral("power")).toInt(1));
 
             shell->AddMachine(machine);
             idMap.insert(id, machine);
         }
 
-        for (const QJsonValue& tv : b.value(QStringLiteral("transitions")).toArray()) {
+        for (const QJsonValue& tv :
+             b.value(QStringLiteral("transitions")).toArray()) {
             const QJsonObject to = tv.toObject();
-            const QString startId = to.value(QStringLiteral("startMachineId")).toString();
-            const QString finishId = to.value(QStringLiteral("finishMachineId")).toString();
+            const QString startId =
+                to.value(QStringLiteral("startMachineId")).toString();
+            const QString finishId =
+                to.value(QStringLiteral("finishMachineId")).toString();
             if (!idMap.contains(startId) || !idMap.contains(finishId)) continue;
 
             const auto startMachine = idMap.value(startId);
@@ -401,17 +415,19 @@ bool VMTJsonSerializer::deserialize(VMTProject* project) const
             auto transition = std::make_shared<VMTTransitionImpl>(shell);
             linkTransition(transition, startMachine, finishMachine, to);
 
-            const QJsonObject cond = to.value(QStringLiteral("conditions")).toObject();
-            applyEnabledSigns(transition->GetConditions(),
-                              cond.value(QStringLiteral("enabledSigns")).toArray(),
-                              nullptr);
+            const QJsonObject cond =
+                to.value(QStringLiteral("conditions")).toObject();
+            applyEnabledSigns(
+                transition->GetConditions(),
+                cond.value(QStringLiteral("enabledSigns")).toArray(), nullptr);
 
             shell->AddTransition(transition);
         }
     }
 
     project->GetMachines().clear();
-    const QJsonArray rootIds = root.value(QStringLiteral("rootBodyIds")).toArray();
+    const QJsonArray rootIds =
+        root.value(QStringLiteral("rootBodyIds")).toArray();
     if (rootIds.isEmpty() && !bodiesById.isEmpty()) {
         for (auto it = bodiesById.begin(); it != bodiesById.end(); ++it) {
             auto cm = std::make_shared<VMTComplexMachine>(
@@ -423,11 +439,12 @@ bool VMTJsonSerializer::deserialize(VMTProject* project) const
         for (const QJsonValue& rv : rootIds) {
             const QString bodyId = rv.toString();
             const QJsonObject b = bodyJsonById.value(bodyId);
-            const QString name = b.value(QStringLiteral("name")).toString(QStringLiteral("Machine"));
+            const QString name = b.value(QStringLiteral("name"))
+                                     .toString(QStringLiteral("Machine"));
             auto cm = std::make_shared<VMTComplexMachine>(
-                name,
-                bodiesById.contains(bodyId) ? bodiesById.value(bodyId)->GetAlphabit()
-                                           : project->GetAlphabit());
+                name, bodiesById.contains(bodyId)
+                          ? bodiesById.value(bodyId)->GetAlphabit()
+                          : project->GetAlphabit());
             if (bodiesById.contains(bodyId)) {
                 cm->SetInnerObject(bodiesById.value(bodyId), cm);
             }
@@ -436,7 +453,8 @@ bool VMTJsonSerializer::deserialize(VMTProject* project) const
     }
 
     if (!project->GetMachines().empty()) {
-        project->GetCurrentMachineName() = project->GetMachines().front()->GetName();
+        project->GetCurrentMachineName() =
+            project->GetMachines().front()->GetName();
     }
 
     return !project->GetMachines().empty();

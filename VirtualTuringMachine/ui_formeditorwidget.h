@@ -15,32 +15,29 @@
 
 QT_BEGIN_NAMESPACE
 
-class Ui_FormEditorWidget
-{
-public:
-
-    void setupUi(QWidget *FormEditorWidget)
-    {
+class Ui_FormEditorWidget {
+   public:
+    void setupUi(QWidget* FormEditorWidget) {
         if (FormEditorWidget->objectName().isEmpty())
-            FormEditorWidget->setObjectName(QString::fromUtf8("FormEditorWidget"));
+            FormEditorWidget->setObjectName(
+                QString::fromUtf8("FormEditorWidget"));
         FormEditorWidget->resize(400, 300);
 
         retranslateUi(FormEditorWidget);
 
         QMetaObject::connectSlotsByName(FormEditorWidget);
-    } // setupUi
+    }  // setupUi
 
-    void retranslateUi(QWidget *FormEditorWidget)
-    {
-        FormEditorWidget->setWindowTitle(QCoreApplication::translate("FormEditorWidget", "Form", nullptr));
-    } // retranslateUi
-
+    void retranslateUi(QWidget* FormEditorWidget) {
+        FormEditorWidget->setWindowTitle(
+            QCoreApplication::translate("FormEditorWidget", "Form", nullptr));
+    }  // retranslateUi
 };
 
 namespace Ui {
-    class FormEditorWidget: public Ui_FormEditorWidget {};
-} // namespace Ui
+class FormEditorWidget : public Ui_FormEditorWidget {};
+}  // namespace Ui
 
 QT_END_NAMESPACE
 
-#endif // UI_FORMEDITORWIDGET_H
+#endif  // UI_FORMEDITORWIDGET_H

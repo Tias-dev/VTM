@@ -17,14 +17,12 @@
 
 QT_BEGIN_NAMESPACE
 
-class Ui_FormLineWidget
-{
-public:
-    QHBoxLayout *horizontalLayout;
-    QFrame *frame;
+class Ui_FormLineWidget {
+   public:
+    QHBoxLayout* horizontalLayout;
+    QFrame* frame;
 
-    void setupUi(QWidget *FormLineWidget)
-    {
+    void setupUi(QWidget* FormLineWidget) {
         if (FormLineWidget->objectName().isEmpty())
             FormLineWidget->setObjectName(QString::fromUtf8("FormLineWidget"));
         FormLineWidget->resize(1023, 88);
@@ -39,23 +37,21 @@ public:
 
         horizontalLayout->addWidget(frame);
 
-
         retranslateUi(FormLineWidget);
 
         QMetaObject::connectSlotsByName(FormLineWidget);
-    } // setupUi
+    }  // setupUi
 
-    void retranslateUi(QWidget *FormLineWidget)
-    {
-        FormLineWidget->setWindowTitle(QCoreApplication::translate("FormLineWidget", "Form", nullptr));
-    } // retranslateUi
-
+    void retranslateUi(QWidget* FormLineWidget) {
+        FormLineWidget->setWindowTitle(
+            QCoreApplication::translate("FormLineWidget", "Form", nullptr));
+    }  // retranslateUi
 };
 
 namespace Ui {
-    class FormLineWidget: public Ui_FormLineWidget {};
-} // namespace Ui
+class FormLineWidget : public Ui_FormLineWidget {};
+}  // namespace Ui
 
 QT_END_NAMESPACE
 
-#endif // UI_FORMLINEWIDGET_H
+#endif  // UI_FORMLINEWIDGET_H

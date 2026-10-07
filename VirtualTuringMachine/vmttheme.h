@@ -8,9 +8,8 @@ class QApplication;
 class QWidget;
 
 /** Material Design 2 palette and styles for VTM. */
-class VmtTheme
-{
-public:
+class VmtTheme {
+   public:
     // --- Material palette (Blue primary) ---
     static const QColor& primary();
     static const QColor& primaryDark();
@@ -47,9 +46,11 @@ public:
     static void refreshDiagramViews(QWidget* root);
     static void applyApplication(QApplication* app);
     static void polishWidgetTree(QWidget* root);
-    /** Clear hard-coded UI colors and apply themed inputs, lists, canvas, tape. */
+    /** Clear hard-coded UI colors and apply themed inputs, lists, canvas, tape.
+     */
     static void applyThemedWidgets(QWidget* root);
-    /** Dark chrome + button styles for toolbars that use white/light pixmap icons. */
+    /** Dark chrome + button styles for toolbars that use white/light pixmap
+     * icons. */
     static void applyIconToolBar(QWidget* toolbarRoot);
     /** Re-apply toolbar chrome on all known toolbar frames under root. */
     static void applyIconToolBarsInTree(QWidget* root);
@@ -74,4 +75,4 @@ public:
     static QString colorName(const QColor& color);
 };
 
-#endif // VMTTHEME_H
+#endif  // VMTTHEME_H

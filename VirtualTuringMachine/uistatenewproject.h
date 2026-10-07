@@ -1,20 +1,18 @@
 #ifndef UISTATENEWPROJECT_H
 #define UISTATENEWPROJECT_H
-#include "uistatestub.h"
+#include <QMessageBox>
+
+#include "configuration.h"
 #include "formnewproject.h"
 #include "uistateeditormachine.h"
-#include "configuration.h"
-#include <QMessageBox>
+#include "uistatestub.h"
 class StateController;
 class UIStateNewProjectData;
 
-class UIStateNewProject : public UIStateStub<FormNewProject>
-{
-protected:
-
-
-    UIStateNewProject(StateController* parent): UIStateStub<FormNewProject>(parent)
-    {
+class UIStateNewProject : public UIStateStub<FormNewProject> {
+   protected:
+    UIStateNewProject(StateController* parent)
+        : UIStateStub<FormNewProject>(parent) {
         parent->EnableExercise(false);
         parent->EnableNewMachine(false);
         parent->EnableOpenMachine(false);
@@ -38,58 +36,53 @@ protected:
         parent->EnableZoom(false);
     }
 
-    void Action(const QString& name) override{
-      parent->Update();
-      if(name == QString("button_save")){
-          QString name;
-          GetProjectFileName(name);
-          VMTSerializer serializer(name);
-          serializer.Serialize(&VMTProject::GetInstance());
+    void Action(const QString& name) override {
+        parent->Update();
+        if (name == QString("button_save")) {
+            QString name;
+            GetProjectFileName(name);
+            VMTSerializer serializer(name);
+            serializer.Serialize(&VMTProject::GetInstance());
 
-          Configuration::GetInstance().AddRecentProject(name);
-          Configuration::GetInstance().Save();
-          QMessageBox box;
-          box.setText("Project saved");
-          box.exec();
-
-      }
-
+            Configuration::GetInstance().AddRecentProject(name);
+            Configuration::GetInstance().Save();
+            QMessageBox box;
+            box.setText("Project saved");
+            box.exec();
+        }
     }
 
     friend UIStateNewProjectData;
 
-public:
-    static void GetProjectFileName(QString &name){
+   public:
+    static void GetProjectFileName(QString& name) {
         name = VMTProject::GetInstance().GetLocation();
         name += "/";
         name += VMTProject::GetInstance().GetName();
-        if(!name.endsWith(".jdtp", Qt::CaseInsensitive)) name += ".jdtp";
+        if (!name.endsWith(".jdtp", Qt::CaseInsensitive)) name += ".jdtp";
     }
 };
 
-class UIStateNewProjectData : public UIStateData{
-
-public:
-    std::shared_ptr<UIState> ConstructNewState(StateController * controller) override{
-        return std::shared_ptr<UIStateNewProject>(new UIStateNewProject(controller));
+class UIStateNewProjectData : public UIStateData {
+   public:
+    std::shared_ptr<UIState> ConstructNewState(
+        StateController* controller) override {
+        return std::shared_ptr<UIStateNewProject>(
+            new UIStateNewProject(controller));
     }
-    std::shared_ptr<UIState> ConstructUndoState(StateController * controller) override{
-        return std::shared_ptr<UIStateNewProject>(new UIStateNewProject(controller));
-    }
-
-    bool IsNeedWarning() override {
-        return true;
-    }
-
-    QString GetName() override{
-        return name;
+    std::shared_ptr<UIState> ConstructUndoState(
+        StateController* controller) override {
+        return std::shared_ptr<UIStateNewProject>(
+            new UIStateNewProject(controller));
     }
 
-    void SetName(QString name) override{
-        this->name = name;
-    }
+    bool IsNeedWarning() override { return true; }
 
-    QString name="New machine";
+    QString GetName() override { return name; }
+
+    void SetName(QString name) override { this->name = name; }
+
+    QString name = "New machine";
 };
 
-#endif // UISTATENEWPROJECT_H
+#endif  // UISTATENEWPROJECT_H

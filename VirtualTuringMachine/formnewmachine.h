@@ -1,29 +1,29 @@
 #ifndef FORMNEWMACHINE_H
 #define FORMNEWMACHINE_H
-#include "formbase.h"
-#include <QWidget>
 #include <QStringListModel>
+#include <QWidget>
+
+#include "formbase.h"
 
 namespace Ui {
 class FormNewMachine;
 }
 
-class FormNewMachine : public QWidget, public FormBase
-{
+class FormNewMachine : public QWidget, public FormBase {
     Q_OBJECT
 
-public:
-    explicit FormNewMachine(QWidget *parent = 0);
+   public:
+    explicit FormNewMachine(QWidget* parent = 0);
     ~FormNewMachine();
     void BeforeChange(std::shared_ptr<UIStateData> state_data) override;
     void AfterUndo(std::shared_ptr<UIStateData> state_data) override;
     void OnLoaded() override;
-private slots:
+   private slots:
     void on_button_ok_clicked();
 
-    void on_text_machine_name_textChanged(const QString &arg1);
+    void on_text_machine_name_textChanged(const QString& arg1);
 
-    void on_list_machines_clicked(const QModelIndex &index);
+    void on_list_machines_clicked(const QModelIndex& index);
 
     void on_button_delete_clicked();
 
@@ -33,12 +33,12 @@ private slots:
 
     void on_button_delete_2_clicked();
 
-private:
+   private:
     QStringListModel _list_model;
-    Ui::FormNewMachine *ui;
+    Ui::FormNewMachine* ui;
 
     void FillList();
     void Check();
 };
 
-#endif // FORMNEWMACHINE_H
+#endif  // FORMNEWMACHINE_H

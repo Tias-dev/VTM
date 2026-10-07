@@ -1,11 +1,11 @@
 #include "VMTMachineStub.h"
-#include "uicanvas.h"
-#include "VMTComplexMachine.h"
+
+#include <QDebug>
+
 #include "VMTAlphabit.h"
-
-
-
+#include "VMTComplexMachine.h"
 #include "VMTMachineAlpha.h"
+#include "uicanvas.h"
 #include "vmtmachinecopy.h"
 #include "vmtmachinefinish.h"
 #include "vmtmachineleft.h"
@@ -13,51 +13,52 @@
 #include "vmtmachineright.h"
 #include "vmtmachinerightword.h"
 #include "vmtmachinestart.h"
-#include <QDebug>
 
-
-
-std::shared_ptr<IVMTMachine> VMTMachineStub::CreateMachineByID(MachineType id,
-                                                               std::weak_ptr<VMTComplexMachine> parent){
-
-    if(auto parent_ptr = parent.lock()){
-        switch(id){
-        case MachineType::MT_WRITE:
-            return std::shared_ptr<IVMTMachine>(new VMTMachineAlpha(parent_ptr->GetAlphabit()->GetLambda(),parent));
-        case MachineType::MT_START:
-            return std::shared_ptr<IVMTMachine>(new VMTMachineStart(parent));
-        case MachineType::MT_FINISH:
-            return std::shared_ptr<IVMTMachine>(new VMTMachineFinish(parent));
-        case MachineType::MT_LEFT:
-            return std::shared_ptr<IVMTMachine>(new VMTMachineLeft(parent));
-        case MachineType::MT_LEFT_WORD:
-            return std::shared_ptr<IVMTMachine>(new VMTMachineLeftWord(parent));
-        case MachineType::MT_RIGHT:
-            return std::shared_ptr<IVMTMachine>(new VMTMachineRight(parent));
-        case MachineType::MT_RIGHT_WORD:
-            return std::shared_ptr<IVMTMachine>(new VMTMachineRightWord(parent));
-        case MachineType::MT_COPY:
-            return std::shared_ptr<IVMTMachine>(new VMTMachineCopy(parent));
-        default:
-            return std::shared_ptr<IVMTMachine>();
+std::shared_ptr<IVMTMachine> VMTMachineStub::CreateMachineByID(
+    MachineType id, std::weak_ptr<VMTComplexMachine> parent) {
+    if (auto parent_ptr = parent.lock()) {
+        switch (id) {
+            case MachineType::MT_WRITE:
+                return std::shared_ptr<IVMTMachine>(new VMTMachineAlpha(
+                    parent_ptr->GetAlphabit()->GetLambda(), parent));
+            case MachineType::MT_START:
+                return std::shared_ptr<IVMTMachine>(
+                    new VMTMachineStart(parent));
+            case MachineType::MT_FINISH:
+                return std::shared_ptr<IVMTMachine>(
+                    new VMTMachineFinish(parent));
+            case MachineType::MT_LEFT:
+                return std::shared_ptr<IVMTMachine>(new VMTMachineLeft(parent));
+            case MachineType::MT_LEFT_WORD:
+                return std::shared_ptr<IVMTMachine>(
+                    new VMTMachineLeftWord(parent));
+            case MachineType::MT_RIGHT:
+                return std::shared_ptr<IVMTMachine>(
+                    new VMTMachineRight(parent));
+            case MachineType::MT_RIGHT_WORD:
+                return std::shared_ptr<IVMTMachine>(
+                    new VMTMachineRightWord(parent));
+            case MachineType::MT_COPY:
+                return std::shared_ptr<IVMTMachine>(new VMTMachineCopy(parent));
+            default:
+                return std::shared_ptr<IVMTMachine>();
         }
-
-
     }
 
     return std::shared_ptr<IVMTMachine>();
 }
 
-std::shared_ptr<IVMTMachine> VMTMachineStub::CreateComplexMachine(IVMTEnvironment*){
- return std::shared_ptr<IVMTMachine>();
+std::shared_ptr<IVMTMachine> VMTMachineStub::CreateComplexMachine(
+    IVMTEnvironment*) {
+    return std::shared_ptr<IVMTMachine>();
 }
 
 namespace {
 const qint32 kMachineFormatV2Marker = -1;
 }
 
-void VMTMachineStub::applyLayoutFromState(IVMTEnvironment* environment, bool notifyTransitions)
-{
+void VMTMachineStub::applyLayoutFromState(IVMTEnvironment* environment,
+                                          bool notifyTransitions) {
     _input_point = _center;
     _output_point = _center;
     _internal_bounds.setLeft(_center.x() - _size.x() / 2);
@@ -85,15 +86,16 @@ void VMTMachineStub::applyLayoutFromState(IVMTEnvironment* environment, bool not
 
     if (notifyTransitions && environment) {
         const bool deferRouting = environment->deferTransitionRouting();
-        auto notifyTransition = [&](const std::weak_ptr<IVMTTransition>& transition) {
-            if (auto ptr = transition.lock()) {
-                if (deferRouting) {
-                    ptr->UpdatePreview(environment);
-                } else {
-                    ptr->Changed(environment);
+        auto notifyTransition =
+            [&](const std::weak_ptr<IVMTTransition>& transition) {
+                if (auto ptr = transition.lock()) {
+                    if (deferRouting) {
+                        ptr->UpdatePreview(environment);
+                    } else {
+                        ptr->Changed(environment);
+                    }
                 }
-            }
-        };
+            };
 
         if (deferRouting) {
             for (auto transition : _incoming) {
@@ -126,8 +128,7 @@ void VMTMachineStub::applyLayoutFromState(IVMTEnvironment* environment, bool not
     }
 }
 
-void VMTMachineStub::restoreLayoutFromLegacyBounds()
-{
+void VMTMachineStub::restoreLayoutFromLegacyBounds() {
     _internal_bounds.setLeft(_bounds.left() + 5);
     _internal_bounds.setTop(_bounds.top() + 5);
     _internal_bounds.setWidth(qMax(0, _bounds.width() - 10));
@@ -141,7 +142,7 @@ void VMTMachineStub::restoreLayoutFromLegacyBounds()
     _output_point.ry() = portY;
 }
 
-void VMTMachineStub::Serialize(QDataStream& stream){
+void VMTMachineStub::Serialize(QDataStream& stream) {
     stream << kMachineFormatV2Marker;
     stream << (qint32)_center.x();
     stream << (qint32)_center.y();
@@ -150,7 +151,7 @@ void VMTMachineStub::Serialize(QDataStream& stream){
     stream << (qint64)_power;
 }
 
-void VMTMachineStub::Deserialize(QDataStream& stream){
+void VMTMachineStub::Deserialize(QDataStream& stream) {
     qint32 marker = 0;
     stream >> marker;
 
@@ -184,7 +185,10 @@ void VMTMachineStub::Deserialize(QDataStream& stream){
     restoreLayoutFromLegacyBounds();
 }
 
-VMTMachineStub::VMTMachineStub(const QString name, std::weak_ptr<VMTComplexMachine> parent, MachineType id,ImageType it) : IVMTMachine(it){
+VMTMachineStub::VMTMachineStub(const QString name,
+                               std::weak_ptr<VMTComplexMachine> parent,
+                               MachineType id, ImageType it)
+    : IVMTMachine(it) {
     this->_error = false;
     this->_selected = false;
     this->_power = 1;
@@ -193,26 +197,28 @@ VMTMachineStub::VMTMachineStub(const QString name, std::weak_ptr<VMTComplexMachi
     _id = id;
 }
 
-IVMTAlphabitSource *VMTMachineStub::GetAlphabitSource(){
-    return nullptr;
-}
+IVMTAlphabitSource* VMTMachineStub::GetAlphabitSource() { return nullptr; }
 
-void VMTMachineStub::AddIncomingTransition(std::weak_ptr<IVMTTransition> transition){
+void VMTMachineStub::AddIncomingTransition(
+    std::weak_ptr<IVMTTransition> transition) {
     _incoming.push_back(transition);
 }
 
-void VMTMachineStub::AddOutgoingTransition(std::weak_ptr<IVMTTransition> transition){
+void VMTMachineStub::AddOutgoingTransition(
+    std::weak_ptr<IVMTTransition> transition) {
     _outgoing.push_back(transition);
 }
 
-void VMTMachineStub::RemoveIncomingTransition(std::shared_ptr<IVMTTransition> transition){
-
+void VMTMachineStub::RemoveIncomingTransition(
+    std::shared_ptr<IVMTTransition> transition) {
     bool found = true;
-    while(found){
+    while (found) {
         found = false;
-        for(std::vector<std::weak_ptr<IVMTTransition>>::iterator it= _incoming.begin();(it!=_incoming.end())&&!found;++it){
-            if(std::shared_ptr<IVMTTransition> ptr=it->lock()){
-                if(ptr == transition) {
+        for (std::vector<std::weak_ptr<IVMTTransition>>::iterator it =
+                 _incoming.begin();
+             (it != _incoming.end()) && !found; ++it) {
+            if (std::shared_ptr<IVMTTransition> ptr = it->lock()) {
+                if (ptr == transition) {
                     _incoming.erase(it);
                     qDebug() << "Removed";
                     found = true;
@@ -222,14 +228,17 @@ void VMTMachineStub::RemoveIncomingTransition(std::shared_ptr<IVMTTransition> tr
     }
 }
 
-void VMTMachineStub::RemoveOutgoingTransition(std::shared_ptr<IVMTTransition> transition){
+void VMTMachineStub::RemoveOutgoingTransition(
+    std::shared_ptr<IVMTTransition> transition) {
     bool found = true;
     qDebug() << "Remove outgoing";
-    while(found){
+    while (found) {
         found = false;
-        for(std::vector<std::weak_ptr<IVMTTransition>>::iterator it= _outgoing.begin();(it!=_outgoing.end())&&!found;++it){
-            if(std::shared_ptr<IVMTTransition> ptr=it->lock()){
-                if(ptr == transition) {
+        for (std::vector<std::weak_ptr<IVMTTransition>>::iterator it =
+                 _outgoing.begin();
+             (it != _outgoing.end()) && !found; ++it) {
+            if (std::shared_ptr<IVMTTransition> ptr = it->lock()) {
+                if (ptr == transition) {
                     qDebug() << "Erase";
                     _outgoing.erase(it);
                     qDebug() << "Removed";
@@ -241,142 +250,110 @@ void VMTMachineStub::RemoveOutgoingTransition(std::shared_ptr<IVMTTransition> tr
     qDebug() << "Done";
 }
 
-void VMTMachineStub::DoAction([[maybe_unused]] std::shared_ptr<VMTLine> line){
+void VMTMachineStub::DoAction([[maybe_unused]] std::shared_ptr<VMTLine> line) {}
 
-}
+QPoint& VMTMachineStub::GetSize() { return _size; }
 
-QPoint& VMTMachineStub::GetSize(){
-    return _size;
-}
+const QRect& VMTMachineStub::GetBounds() { return _bounds; }
 
-const QRect& VMTMachineStub::GetBounds(){
-    return _bounds;
-}
-
-const QRect& VMTMachineStub::GetBoundsWithChilds(){
+const QRect& VMTMachineStub::GetBoundsWithChilds() {
     return this->_bounds_with_childs;
 }
 
-const QPoint& VMTMachineStub::GetCenter(){
-    _center = QPoint((_bounds.left()+_bounds.right())/2,
-                     (_bounds.top()+_bounds.bottom())/2);
+const QPoint& VMTMachineStub::GetCenter() {
+    _center = QPoint((_bounds.left() + _bounds.right()) / 2,
+                     (_bounds.top() + _bounds.bottom()) / 2);
     return _center;
 }
 
-IVMTMachine::MachineType VMTMachineStub::GetID() {
-    return this->_id;
-}
+IVMTMachine::MachineType VMTMachineStub::GetID() { return this->_id; }
 
-std::weak_ptr<VMTComplexMachine> VMTMachineStub::GetParent(){
+std::weak_ptr<VMTComplexMachine> VMTMachineStub::GetParent() {
     return this->_parent;
 }
 
-const std::vector<std::weak_ptr<IVMTTransition>>& VMTMachineStub::GetIncomingTransitions(){
+const std::vector<std::weak_ptr<IVMTTransition>>&
+VMTMachineStub::GetIncomingTransitions() {
     return this->_incoming;
 }
 
-const std::vector<std::weak_ptr<IVMTTransition>>& VMTMachineStub::GetOutgoingTransitions(){
+const std::vector<std::weak_ptr<IVMTTransition>>&
+VMTMachineStub::GetOutgoingTransitions() {
     return this->_outgoing;
 }
 
-const QPoint& VMTMachineStub::GetInputPoint(){
-    return this->_input_point;
+const QPoint& VMTMachineStub::GetInputPoint() { return this->_input_point; }
+
+const QString& VMTMachineStub::GetMachineName() { return this->_name; }
+
+const QString& VMTMachineStub::GetName() { return this->_name; }
+
+const QPoint& VMTMachineStub::GetOutputPoint() { return this->_output_point; }
+
+long VMTMachineStub::GetPower() { return this->_power; }
+
+bool VMTMachineStub::IsAcceptIncoming() { return false; }
+
+bool VMTMachineStub::IsAcceptOutgoing() { return true; }
+
+bool VMTMachineStub::IsAlphabit() { return false; }
+
+bool VMTMachineStub::IsComplex() { return false; }
+
+bool VMTMachineStub::IsError() { return this->_error; }
+
+bool VMTMachineStub::IsInside(const QPoint& point) {
+    return (this->_bounds.top() <= point.y()) &&
+           (this->_bounds.bottom() >= point.y()) &&
+           (this->_bounds.left() <= point.x()) &&
+           (this->_bounds.right() >= point.x());
 }
 
-const QString& VMTMachineStub::GetMachineName(){
-    return this->_name;
-}
+bool VMTMachineStub::IsPowerCalculator() { return true; }
 
-const QString& VMTMachineStub::GetName(){
-    return this->_name;
-}
+bool VMTMachineStub::IsSelected() { return this->_selected; }
 
-const QPoint& VMTMachineStub::GetOutputPoint(){
-    return this->_output_point;
-}
-
-
-long VMTMachineStub::GetPower(){
-    return this->_power;
-}
-
-bool VMTMachineStub::IsAcceptIncoming(){
-    return false;
-}
-
-bool VMTMachineStub::IsAcceptOutgoing(){
-    return true;
-}
-
-bool VMTMachineStub::IsAlphabit(){
-    return false;
-}
-
-bool VMTMachineStub::IsComplex(){
-    return false;
-}
-
-bool VMTMachineStub::IsError(){
-    return this->_error;
-}
-
-bool VMTMachineStub::IsInside(const QPoint& point){
-    return (this->_bounds.top()<=point.y())&&(this->_bounds.bottom()>=point.y())&&
-            (this->_bounds.left()<=point.x())&&(this->_bounds.right()>=point.x());
-}
-
-bool VMTMachineStub::IsPowerCalculator(){
-    return true;
-}
-
-bool VMTMachineStub::IsSelected(){
-    return this->_selected;
-}
-
-void VMTMachineStub::Move(const QPoint& center,IVMTEnvironment* environment){
+void VMTMachineStub::Move(const QPoint& center, IVMTEnvironment* environment) {
     _center = center;
     Update(environment);
 }
 
-
-void VMTMachineStub::Update(IVMTEnvironment* environment){
+void VMTMachineStub::Update(IVMTEnvironment* environment) {
     applyLayoutFromState(environment, true);
 }
 
-void VMTMachineStub::Move(const QPoint&& center,IVMTEnvironment* environment){
+void VMTMachineStub::Move(const QPoint&& center, IVMTEnvironment* environment) {
     _center = center;
     Update(environment);
 }
 
-void VMTMachineStub::Paint(UICanvas& canvas, const QRect& rect){
+void VMTMachineStub::Paint(UICanvas& canvas, const QRect& rect) {
     if (!rect.isEmpty() && !rect.intersects(_bounds)) {
         return;
     }
 
-    if(this->_selected||this->_error)
-    {
-        if(_selected)  {
-            canvas.DrawRectAnimation(_bounds,_selected);
-        }  else  canvas.DrawRect(_bounds,_selected,_error);
-    } else{
-        //canvas.DrawButton(_bounds);
+    if (this->_selected || this->_error) {
+        if (_selected) {
+            canvas.DrawRectAnimation(_bounds, _selected);
+        } else
+            canvas.DrawRect(_bounds, _selected, _error);
+    } else {
+        // canvas.DrawButton(_bounds);
     }
 
-    if(_power>1){
-      QString str = QString::number(_power);
-      QRect rect = _internal_bounds;
-      rect.setLeft(rect.left()+rect.width());
-      rect.setWidth(rect.height()/2);
-      rect.setHeight(rect.height()/2);
-      //canvas.DrawText(str, rect, false);
+    if (_power > 1) {
+        QString str = QString::number(_power);
+        QRect rect = _internal_bounds;
+        rect.setLeft(rect.left() + rect.width());
+        rect.setWidth(rect.height() / 2);
+        rect.setHeight(rect.height() / 2);
+        // canvas.DrawText(str, rect, false);
 
-      canvas.DrawText(str,rect.center(),rect.height(),false);
+        canvas.DrawText(str, rect.center(), rect.height(), false);
     }
-
-
 }
 
-void VMTMachineStub::RemoveChilds(){
+void VMTMachineStub::RemoveChilds() {
     _incoming.clear();
     _outgoing.clear();
 }
@@ -384,50 +361,41 @@ void VMTMachineStub::RemoveChilds(){
 //*
 void VMTMachineStub::RemoveIncomingTransition(IVMTTransition* transition) {
     for (auto it = _incoming.begin(); it != _incoming.end();) {
-        if(auto ptr = it->lock())
-        {
+        if (auto ptr = it->lock()) {
             IVMTTransition* current = ptr.get();
-            if (current == transition) _incoming.erase(it);
-            else it++;
-        } else it++;
+            if (current == transition)
+                _incoming.erase(it);
+            else
+                it++;
+        } else
+            it++;
     };
 }
 
-
-void VMTMachineStub::RemoveOutgoingTransition(IVMTTransition* transition){
-     qDebug() << "Remove outgoing??";
+void VMTMachineStub::RemoveOutgoingTransition(IVMTTransition* transition) {
+    qDebug() << "Remove outgoing??";
     for (auto it = _outgoing.begin(); it != _outgoing.end();) {
-        if(auto ptr = it->lock())
-        {
+        if (auto ptr = it->lock()) {
             IVMTTransition* current = ptr.get();
             if (current == transition) {
                 qDebug() << "Erase:" << ptr.use_count();
                 _outgoing.erase(it);
-            }
-            else it++;
-        } else it++;
+            } else
+                it++;
+        } else
+            it++;
     };
-
-
 }
 //*/
 
-void VMTMachineStub::SetError(bool error){
-    this->_error = error;
-}
+void VMTMachineStub::SetError(bool error) { this->_error = error; }
 
-void VMTMachineStub::SetParent(std::weak_ptr<VMTComplexMachine> parent){
+void VMTMachineStub::SetParent(std::weak_ptr<VMTComplexMachine> parent) {
     this->_parent = parent;
 }
 
-void VMTMachineStub::SetPower(long power){
-    this->_power = power;
-}
+void VMTMachineStub::SetPower(long power) { this->_power = power; }
 
-void VMTMachineStub::SetSelected(bool selected){
-    this->_selected =selected;
-}
+void VMTMachineStub::SetSelected(bool selected) { this->_selected = selected; }
 
-VMTMachineStub::~VMTMachineStub(){
-
-}
+VMTMachineStub::~VMTMachineStub() {}

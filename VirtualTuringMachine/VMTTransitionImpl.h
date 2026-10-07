@@ -1,34 +1,33 @@
 #if !defined(EA_605C0DDC_936B_4cfe_BE03_26F5FE6A1A08__INCLUDED_)
 #define EA_605C0DDC_936B_4cfe_BE03_26F5FE6A1A08__INCLUDED_
 
-#include "VMTTransitionConditions.h"
-#include "interfaces/IVMTMachine.h"
-#include "VMTSerializer.h"
-#include "interfaces/IVMTMachine.h"
-#include "interfaces/IVMTTransition.h"
-#include "vmtmachines/VMTComplexMachine.h"
-#include "screentools.h"
 #include <QPoint>
 #include <QRect>
 #include <vector>
 
+#include "VMTSerializer.h"
+#include "VMTTransitionConditions.h"
+#include "interfaces/IVMTMachine.h"
+#include "interfaces/IVMTTransition.h"
+#include "screentools.h"
+#include "vmtmachines/VMTComplexMachine.h"
+
 #define PRECISION 5
 
-class VMTTransitionImpl : public IVMTTransition
-{
-
-public:
+class VMTTransitionImpl : public IVMTTransition {
+   public:
     VMTTransitionImpl(std::weak_ptr<VMTComplexMachine> parent);
 
     void Serialize(QDataStream&) override;
     void Deserialize(QDataStream&) override;
-    void BeginDrag(IVMTEnvironment* environment,const QPoint& p_Point) override;
+    void BeginDrag(IVMTEnvironment* environment,
+                   const QPoint& p_Point) override;
     void ChangeAlphabit(std::shared_ptr<VMTAlphabit> alphabit) override;
     void Changed(IVMTEnvironment* environment) override;
     void UpdatePreview(IVMTEnvironment* environment) override;
 
-    void Drag(IVMTEnvironment* environment,const QPoint& p_Point) override;
-    void EndDrag(IVMTEnvironment* environment,const QPoint& p_Point) override;
+    void Drag(IVMTEnvironment* environment, const QPoint& p_Point) override;
+    void EndDrag(IVMTEnvironment* environment, const QPoint& p_Point) override;
 
     const QRect& GetBounds() override;
     VMTTransitionConditions& GetConditions() override;
@@ -38,8 +37,9 @@ public:
     std::weak_ptr<IVMTMachine> GetStart() override;
 
     bool IsError() override;
-    bool IsInside(IVMTEnvironment* environment,const QPoint& p_Point) override;
-    bool IsIntersectLine(IVMTEnvironment* environment,const QPoint& start,const QPoint& end) override;
+    bool IsInside(IVMTEnvironment* environment, const QPoint& p_Point) override;
+    bool IsIntersectLine(IVMTEnvironment* environment, const QPoint& start,
+                         const QPoint& end) override;
     void Paint(UICanvas& canvas, const QRect& rect) override;
 
     void RemoveChilds() override;
@@ -48,12 +48,14 @@ public:
     std::weak_ptr<IVMTMachine> GetFinishMachine() override;
 
     void SetError(bool bError) override;
-    void SetFinish(IVMTEnvironment* environment,std::shared_ptr<IVMTMachine> machine) override;
-    void SetFinish(IVMTEnvironment* environment,const QPoint& point) override;
+    void SetFinish(IVMTEnvironment* environment,
+                   std::shared_ptr<IVMTMachine> machine) override;
+    void SetFinish(IVMTEnvironment* environment, const QPoint& point) override;
 
     void SetSelected(bool enable) override;
-    void SetStart(IVMTEnvironment* environment,std::shared_ptr<IVMTMachine> machine) override;
-    void SetStart(IVMTEnvironment* environment,const QPoint& point) override;
+    void SetStart(IVMTEnvironment* environment,
+                  std::shared_ptr<IVMTMachine> machine) override;
+    void SetStart(IVMTEnvironment* environment, const QPoint& point) override;
 
     void AttachStartMachine(const std::shared_ptr<IVMTMachine>& machine);
     void AttachFinishMachine(const std::shared_ptr<IVMTMachine>& machine);
@@ -63,13 +65,13 @@ public:
     void RebuildRouteFromMachines();
 
     void SetParent(std::weak_ptr<VMTComplexMachine> parent) override;
-    IVMTAlphabitSource *GetAlphabitSource() override;
+    IVMTAlphabitSource* GetAlphabitSource() override;
     std::vector<QPoint> GetRoutingPolyline() const override;
     std::vector<QPoint> GetCommittedRoutingPolyline() const override;
 
     ~VMTTransitionImpl() override;
 
-protected:
+   protected:
     bool _changed;
     bool _error;
     bool _fixed;
@@ -83,7 +85,7 @@ protected:
 
     QPoint _start_point;
     QPoint _finish_point;
-    QRect  _bounds;
+    QRect _bounds;
 
     std::weak_ptr<IVMTMachine> _start_machine;
     std::weak_ptr<IVMTMachine> _finish_machine;
@@ -92,24 +94,22 @@ protected:
     std::vector<QPoint> _points;
     std::vector<QPoint> _committedPoints;
 
-
-    int  _conditions_segment_number;
-    int  _drag_point_number;
+    int _conditions_segment_number;
+    int _drag_point_number;
     bool _drag_condition;
-    size_t  _condition_width;
-
+    size_t _condition_width;
 
     void CalculateConditionsPoint(bool fixed);
     void refreshPaintBounds();
     bool CheckLineIntersectMachine(int start_position, int end_position);
 
-    bool IsInsideLine(const QPoint& prev, const QPoint& current, const QPoint& point);
+    bool IsInsideLine(const QPoint& prev, const QPoint& current,
+                      const QPoint& point);
 
     void Update(IVMTEnvironment* environment);
-	void UpdateSegment(int start_position, int end_position);
+    void UpdateSegment(int start_position, int end_position);
 
-private:
+   private:
     QRect GetConditionRectangle(UICanvas& canvas);
-
 };
-#endif // !defined(EA_605C0DDC_936B_4cfe_BE03_26F5FE6A1A08__INCLUDED_)
+#endif  // !defined(EA_605C0DDC_936B_4cfe_BE03_26F5FE6A1A08__INCLUDED_)

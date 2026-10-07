@@ -23,32 +23,31 @@
 
 QT_BEGIN_NAMESPACE
 
-class Ui_FormNewMachine
-{
-public:
-    QHBoxLayout *horizontalLayout;
-    QFrame *frame_2;
-    QVBoxLayout *verticalLayout_2;
-    QToolButton *button_ok_2;
-    QToolButton *button_delete_2;
-    QFrame *frame_6;
-    QVBoxLayout *verticalLayout;
-    QLabel *label;
-    QLineEdit *text_machine_name;
-    QFrame *frame;
-    QVBoxLayout *verticalLayout_3;
-    QLabel *label_2;
-    QFrame *frame_4;
-    QHBoxLayout *horizontalLayout_2;
-    QListView *list_machines;
+class Ui_FormNewMachine {
+   public:
+    QHBoxLayout* horizontalLayout;
+    QFrame* frame_2;
+    QVBoxLayout* verticalLayout_2;
+    QToolButton* button_ok_2;
+    QToolButton* button_delete_2;
+    QFrame* frame_6;
+    QVBoxLayout* verticalLayout;
+    QLabel* label;
+    QLineEdit* text_machine_name;
+    QFrame* frame;
+    QVBoxLayout* verticalLayout_3;
+    QLabel* label_2;
+    QFrame* frame_4;
+    QHBoxLayout* horizontalLayout_2;
+    QListView* list_machines;
 
-    void setupUi(QWidget *FormNewMachine)
-    {
+    void setupUi(QWidget* FormNewMachine) {
         if (FormNewMachine->objectName().isEmpty())
             FormNewMachine->setObjectName(QString::fromUtf8("FormNewMachine"));
         FormNewMachine->resize(610, 515);
-        FormNewMachine->setStyleSheet(QString::fromUtf8("background:white;\n"
-"color:black"));
+        FormNewMachine->setStyleSheet(
+            QString::fromUtf8("background:white;\n"
+                              "color:black"));
         horizontalLayout = new QHBoxLayout(FormNewMachine);
         horizontalLayout->setObjectName(QString::fromUtf8("horizontalLayout"));
         horizontalLayout->setContentsMargins(0, 0, 0, 0);
@@ -65,12 +64,14 @@ public:
         QSizePolicy sizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred);
         sizePolicy.setHorizontalStretch(0);
         sizePolicy.setVerticalStretch(0);
-        sizePolicy.setHeightForWidth(button_ok_2->sizePolicy().hasHeightForWidth());
+        sizePolicy.setHeightForWidth(
+            button_ok_2->sizePolicy().hasHeightForWidth());
         button_ok_2->setSizePolicy(sizePolicy);
         button_ok_2->setAutoFillBackground(false);
         button_ok_2->setStyleSheet(QString::fromUtf8(""));
         QIcon icon;
-        icon.addFile(QString::fromUtf8(":/Files/images/ok.png"), QSize(), QIcon::Normal, QIcon::Off);
+        icon.addFile(QString::fromUtf8(":/Files/images/ok.png"), QSize(),
+                     QIcon::Normal, QIcon::Off);
         button_ok_2->setIcon(icon);
         button_ok_2->setIconSize(QSize(32, 32));
 
@@ -78,12 +79,14 @@ public:
 
         button_delete_2 = new QToolButton(frame_2);
         button_delete_2->setObjectName(QString::fromUtf8("button_delete_2"));
-        sizePolicy.setHeightForWidth(button_delete_2->sizePolicy().hasHeightForWidth());
+        sizePolicy.setHeightForWidth(
+            button_delete_2->sizePolicy().hasHeightForWidth());
         button_delete_2->setSizePolicy(sizePolicy);
         button_delete_2->setAutoFillBackground(false);
         button_delete_2->setStyleSheet(QString::fromUtf8(""));
         QIcon icon1;
-        icon1.addFile(QString::fromUtf8(":/Files/images/toolbars/main/bin.png"), QSize(), QIcon::Normal, QIcon::Off);
+        icon1.addFile(QString::fromUtf8(":/Files/images/toolbars/main/bin.png"),
+                      QSize(), QIcon::Normal, QIcon::Off);
         button_delete_2->setIcon(icon1);
         button_delete_2->setIconSize(QSize(32, 32));
 
@@ -94,13 +97,13 @@ public:
         QSizePolicy sizePolicy1(QSizePolicy::Minimum, QSizePolicy::Expanding);
         sizePolicy1.setHorizontalStretch(0);
         sizePolicy1.setVerticalStretch(0);
-        sizePolicy1.setHeightForWidth(frame_6->sizePolicy().hasHeightForWidth());
+        sizePolicy1.setHeightForWidth(
+            frame_6->sizePolicy().hasHeightForWidth());
         frame_6->setSizePolicy(sizePolicy1);
         frame_6->setFrameShape(QFrame::NoFrame);
         frame_6->setFrameShadow(QFrame::Raised);
 
         verticalLayout_2->addWidget(frame_6);
-
 
         horizontalLayout->addWidget(frame_2);
 
@@ -121,18 +124,21 @@ public:
         verticalLayout->addWidget(label);
 
         text_machine_name = new QLineEdit(FormNewMachine);
-        text_machine_name->setObjectName(QString::fromUtf8("text_machine_name"));
+        text_machine_name->setObjectName(
+            QString::fromUtf8("text_machine_name"));
         QSizePolicy sizePolicy3(QSizePolicy::Expanding, QSizePolicy::Maximum);
         sizePolicy3.setHorizontalStretch(0);
         sizePolicy3.setVerticalStretch(0);
-        sizePolicy3.setHeightForWidth(text_machine_name->sizePolicy().hasHeightForWidth());
+        sizePolicy3.setHeightForWidth(
+            text_machine_name->sizePolicy().hasHeightForWidth());
         text_machine_name->setSizePolicy(sizePolicy3);
 
         verticalLayout->addWidget(text_machine_name);
 
         frame = new QFrame(FormNewMachine);
         frame->setObjectName(QString::fromUtf8("frame"));
-        QSizePolicy sizePolicy4(QSizePolicy::Expanding, QSizePolicy::MinimumExpanding);
+        QSizePolicy sizePolicy4(QSizePolicy::Expanding,
+                                QSizePolicy::MinimumExpanding);
         sizePolicy4.setHorizontalStretch(0);
         sizePolicy4.setVerticalStretch(0);
         sizePolicy4.setHeightForWidth(frame->sizePolicy().hasHeightForWidth());
@@ -156,46 +162,44 @@ public:
         frame_4->setFrameShape(QFrame::NoFrame);
         frame_4->setFrameShadow(QFrame::Raised);
         horizontalLayout_2 = new QHBoxLayout(frame_4);
-        horizontalLayout_2->setObjectName(QString::fromUtf8("horizontalLayout_2"));
+        horizontalLayout_2->setObjectName(
+            QString::fromUtf8("horizontalLayout_2"));
         horizontalLayout_2->setContentsMargins(0, 0, 0, 0);
         list_machines = new QListView(frame_4);
         list_machines->setObjectName(QString::fromUtf8("list_machines"));
 
         horizontalLayout_2->addWidget(list_machines);
 
-
         verticalLayout_3->addWidget(frame_4);
-
 
         verticalLayout->addWidget(frame);
 
-
         horizontalLayout->addLayout(verticalLayout);
-
 
         retranslateUi(FormNewMachine);
 
         QMetaObject::connectSlotsByName(FormNewMachine);
-    } // setupUi
+    }  // setupUi
 
-    void retranslateUi(QWidget *FormNewMachine)
-    {
-        FormNewMachine->setWindowTitle(QCoreApplication::translate("FormNewMachine", "Form", nullptr));
+    void retranslateUi(QWidget* FormNewMachine) {
+        FormNewMachine->setWindowTitle(
+            QCoreApplication::translate("FormNewMachine", "Form", nullptr));
         button_ok_2->setText(QString());
 #if QT_CONFIG(shortcut)
         button_ok_2->setShortcut(QString());
-#endif // QT_CONFIG(shortcut)
+#endif  // QT_CONFIG(shortcut)
         button_delete_2->setText(QString());
-        label->setText(QCoreApplication::translate("FormNewMachine", "Machine Name", nullptr));
-        label_2->setText(QCoreApplication::translate("FormNewMachine", "Existing project machines", nullptr));
-    } // retranslateUi
-
+        label->setText(QCoreApplication::translate("FormNewMachine",
+                                                   "Machine Name", nullptr));
+        label_2->setText(QCoreApplication::translate(
+            "FormNewMachine", "Existing project machines", nullptr));
+    }  // retranslateUi
 };
 
 namespace Ui {
-    class FormNewMachine: public Ui_FormNewMachine {};
-} // namespace Ui
+class FormNewMachine : public Ui_FormNewMachine {};
+}  // namespace Ui
 
 QT_END_NAMESPACE
 
-#endif // UI_FORMNEWMACHINE_H
+#endif  // UI_FORMNEWMACHINE_H

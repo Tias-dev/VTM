@@ -23,30 +23,28 @@
 
 QT_BEGIN_NAMESPACE
 
-class Ui_FormExercises
-{
-public:
-    QHBoxLayout *horizontalLayout;
-    QFrame *frame;
-    QVBoxLayout *verticalLayout;
-    QToolButton *_ok;
-    QToolButton *_open;
-    QFrame *frame_3;
-    QFrame *frame_4;
-    QVBoxLayout *verticalLayout_3;
-    QListView *_list;
-    QFrame *frame_2;
-    QVBoxLayout *verticalLayout_2;
-    QTabWidget *tabWidget;
-    QWidget *en;
-    QVBoxLayout *verticalLayout_4;
-    QTextEdit *_text;
-    QWidget *ru;
-    QVBoxLayout *verticalLayout_5;
-    QTextEdit *_text_ru;
+class Ui_FormExercises {
+   public:
+    QHBoxLayout* horizontalLayout;
+    QFrame* frame;
+    QVBoxLayout* verticalLayout;
+    QToolButton* _ok;
+    QToolButton* _open;
+    QFrame* frame_3;
+    QFrame* frame_4;
+    QVBoxLayout* verticalLayout_3;
+    QListView* _list;
+    QFrame* frame_2;
+    QVBoxLayout* verticalLayout_2;
+    QTabWidget* tabWidget;
+    QWidget* en;
+    QVBoxLayout* verticalLayout_4;
+    QTextEdit* _text;
+    QWidget* ru;
+    QVBoxLayout* verticalLayout_5;
+    QTextEdit* _text_ru;
 
-    void setupUi(QWidget *FormExercises)
-    {
+    void setupUi(QWidget* FormExercises) {
         if (FormExercises->objectName().isEmpty())
             FormExercises->setObjectName(QString::fromUtf8("FormExercises"));
         FormExercises->resize(478, 300);
@@ -74,7 +72,8 @@ public:
         sizePolicy1.setHeightForWidth(_ok->sizePolicy().hasHeightForWidth());
         _ok->setSizePolicy(sizePolicy1);
         QIcon icon;
-        icon.addFile(QString::fromUtf8(":/Files/images/ok.png"), QSize(), QIcon::Normal, QIcon::Off);
+        icon.addFile(QString::fromUtf8(":/Files/images/ok.png"), QSize(),
+                     QIcon::Normal, QIcon::Off);
         _ok->setIcon(icon);
         _ok->setIconSize(QSize(32, 32));
 
@@ -83,7 +82,9 @@ public:
         _open = new QToolButton(frame);
         _open->setObjectName(QString::fromUtf8("_open"));
         QIcon icon1;
-        icon1.addFile(QString::fromUtf8(":/Files/images/toolbars/main/icon_open.png"), QSize(), QIcon::Normal, QIcon::Off);
+        icon1.addFile(
+            QString::fromUtf8(":/Files/images/toolbars/main/icon_open.png"),
+            QSize(), QIcon::Normal, QIcon::Off);
         _open->setIcon(icon1);
         _open->setIconSize(QSize(32, 32));
 
@@ -95,7 +96,6 @@ public:
         frame_3->setFrameShadow(QFrame::Raised);
 
         verticalLayout->addWidget(frame_3);
-
 
         horizontalLayout->addWidget(frame);
 
@@ -119,7 +119,6 @@ public:
         _list->setSelectionRectVisible(true);
 
         verticalLayout_3->addWidget(_list);
-
 
         horizontalLayout->addWidget(frame_4);
 
@@ -160,33 +159,33 @@ public:
 
         verticalLayout_2->addWidget(tabWidget);
 
-
         horizontalLayout->addWidget(frame_2);
-
 
         retranslateUi(FormExercises);
 
         tabWidget->setCurrentIndex(0);
 
-
         QMetaObject::connectSlotsByName(FormExercises);
-    } // setupUi
+    }  // setupUi
 
-    void retranslateUi(QWidget *FormExercises)
-    {
-        FormExercises->setWindowTitle(QCoreApplication::translate("FormExercises", "Form", nullptr));
+    void retranslateUi(QWidget* FormExercises) {
+        FormExercises->setWindowTitle(
+            QCoreApplication::translate("FormExercises", "Form", nullptr));
         _ok->setText(QString());
         _open->setText(QString());
-        tabWidget->setTabText(tabWidget->indexOf(en), QCoreApplication::translate("FormExercises", "En", nullptr));
-        tabWidget->setTabText(tabWidget->indexOf(ru), QCoreApplication::translate("FormExercises", "Ru", nullptr));
-    } // retranslateUi
-
+        tabWidget->setTabText(
+            tabWidget->indexOf(en),
+            QCoreApplication::translate("FormExercises", "En", nullptr));
+        tabWidget->setTabText(
+            tabWidget->indexOf(ru),
+            QCoreApplication::translate("FormExercises", "Ru", nullptr));
+    }  // retranslateUi
 };
 
 namespace Ui {
-    class FormExercises: public Ui_FormExercises {};
-} // namespace Ui
+class FormExercises : public Ui_FormExercises {};
+}  // namespace Ui
 
 QT_END_NAMESPACE
 
-#endif // UI_FORMEXERCISES_H
+#endif  // UI_FORMEXERCISES_H

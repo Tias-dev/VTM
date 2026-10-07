@@ -14,10 +14,12 @@ void snapPortHeights(std::vector<QPoint>& points);
 QPainterPath buildConnectorPath(const std::vector<QPoint>& points);
 
 /** Polyline approximation for hit-testing and overlap checks. */
-std::vector<QPoint> flattenPath(const QPainterPath& path, qreal maxSegmentLength = 8.0);
+std::vector<QPoint> flattenPath(const QPainterPath& path,
+                                qreal maxSegmentLength = 8.0);
 
-bool isPointNearStroke(const QPainterPath& path, const QPoint& point, qreal tolerance);
+bool isPointNearStroke(const QPainterPath& path, const QPoint& point,
+                       qreal tolerance);
 
-} // namespace DiagramBezier
+}  // namespace DiagramBezier
 
-#endif // DIAGRAMBEZIER_H
+#endif  // DIAGRAMBEZIER_H

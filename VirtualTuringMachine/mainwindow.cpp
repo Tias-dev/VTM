@@ -1,43 +1,45 @@
 #include "mainwindow.h"
-#include "ui_mainwindow.h"
-#include <QWidget>
+
+#include <QApplication>
 #include <QHBoxLayout>
 #include <QLabel>
 #include <QPushButton>
-#include "uistatemain.h"
-#include "formwarning.h"
-#include "clickablelabel.h"
-#include "screentools.h"
-#include "vmttheme.h"
-#include "configuration.h"
-#include <QApplication>
 #include <QToolButton>
+#include <QWidget>
 
-MainWindow::MainWindow(QWidget *parent) :
-    QMainWindow(parent),
-    ui(new Ui::MainWindow),
-    _form_warning(nullptr)
+#include "clickablelabel.h"
+#include "configuration.h"
+#include "formwarning.h"
+#include "screentools.h"
+#include "ui_mainwindow.h"
+#include "uistatemain.h"
+#include "vmttheme.h"
+
+MainWindow::MainWindow(QWidget* parent)
+    : QMainWindow(parent),
+      ui(new Ui::MainWindow),
+      _form_warning(nullptr)
 
 {
     ui->setupUi(this);
     VmtTheme::applyIconToolBar(ui->frame_header);
     ui->widgetLabel->setStyleSheet(VmtTheme::headerChromeStyle());
 
-   // QPalette pal(palette());
+    // QPalette pal(palette());
 
     // set black background
-    //pal.setColor(QPalette::Background, QColor("#012C40"));
-    //pal.setColor(QPalette::ButtonText,Qt::white);
-    //ui->frame_header->setAutoFillBackground(true);
-    //ui->frame_header->setPalette(pal);
-    //ui->widgetLabel->setPalette(pal);
+    // pal.setColor(QPalette::Background, QColor("#012C40"));
+    // pal.setColor(QPalette::ButtonText,Qt::white);
+    // ui->frame_header->setAutoFillBackground(true);
+    // ui->frame_header->setPalette(pal);
+    // ui->widgetLabel->setPalette(pal);
 
-    //ui->frame_header->setStyleSheet("background-color:#01547a;");
+    // ui->frame_header->setStyleSheet("background-color:#01547a;");
 
-    QObject::connect(ui->button_back, SIGNAL(clicked()),
-                     this, SLOT(onBackClicked()));
+    QObject::connect(ui->button_back, SIGNAL(clicked()), this,
+                     SLOT(onBackClicked()));
 
-    QHBoxLayout *layout = new QHBoxLayout;
+    QHBoxLayout* layout = new QHBoxLayout;
     ui->widget_container->setLayout(layout);
     ui->widget_container->setStyleSheet(VmtTheme::contentAreaStyle());
 
@@ -67,13 +69,13 @@ MainWindow::MainWindow(QWidget *parent) :
 
     ui->button_theme->setChecked(Configuration::GetInstance().IsDarkTheme());
     updateThemeButton();
-    connect(ui->button_theme, &QToolButton::toggled,
-            this, &MainWindow::on_button_theme_toggled);
+    connect(ui->button_theme, &QToolButton::toggled, this,
+            &MainWindow::on_button_theme_toggled);
 
-   // st.ResizeSlider(ui->slider_zoom);
-   // st.ResizeFrame(ui->frame_zoom);
+    // st.ResizeSlider(ui->slider_zoom);
+    // st.ResizeFrame(ui->frame_zoom);
 
-   //st.ResizeLabel(ui->label_2);
+    // st.ResizeLabel(ui->label_2);
 
     this->ChangeState(std::shared_ptr<UIStateMainData>(new UIStateMainData()));
     VmtTheme::applyThemedWidgets(this);
@@ -103,62 +105,56 @@ void MainWindow::EnablePlantUmlExport(bool enable) {
     ui->button_export_plantuml->setHidden(!enable);
 }
 
-void MainWindow::EnableRun(bool enable) {
-    ui->button_run->setHidden(!enable);
-}
+void MainWindow::EnableRun(bool enable) { ui->button_run->setHidden(!enable); }
 
 void MainWindow::EnableConfigure(bool enable) {
     ui->button_configure->setHidden(!enable);
 }
 
-void MainWindow::EnableDebugBack(bool enable){
+void MainWindow::EnableDebugBack(bool enable) {
     ui->button_debug_back->setHidden(!enable);
 }
 
-void MainWindow::EnableDebugOver(bool enable){
+void MainWindow::EnableDebugOver(bool enable) {
     ui->button_debug_over->setHidden(!enable);
 }
 
-void MainWindow::EnableDebugPause(bool enable){
+void MainWindow::EnableDebugPause(bool enable) {
     ui->button_debug_pause->setHidden(!enable);
 }
 
-void MainWindow::EnableDebugRun(bool enable){
+void MainWindow::EnableDebugRun(bool enable) {
     ui->button_debug_run->setHidden(!enable);
 }
 
-void MainWindow::EnableDebugStep(bool enable){
+void MainWindow::EnableDebugStep(bool enable) {
     ui->button_debug_step->setHidden(!enable);
 }
 
-void MainWindow::EnableDebugStop(bool enable){
+void MainWindow::EnableDebugStop(bool enable) {
     ui->button_debug_stop->setHidden(!enable);
 }
 
-void MainWindow::EnableOk(bool enable){
-    ui->button_ok->setHidden(!enable);
-}
+void MainWindow::EnableOk(bool enable) { ui->button_ok->setHidden(!enable); }
 
-void MainWindow::EnableCancel(bool enable){
+void MainWindow::EnableCancel(bool enable) {
     ui->button_cancel->setHidden(!enable);
 }
 
-void MainWindow::EnableZoom(bool enable){
+void MainWindow::EnableZoom(bool enable) {
     ui->slider_zoom->setHidden(!enable);
     ui->frame_zoom->setHidden(!enable);
 }
 
-void MainWindow::Enable4thExport(bool enable){
+void MainWindow::Enable4thExport(bool enable) {
     ui->button_4th->setHidden(!enable);
 }
 
 #include <QMessageBox>
-void MainWindow::closeEvent (QCloseEvent *event)
-{
-    QMessageBox::StandardButton resBtn = QMessageBox::question( this, "VMT",
-                                                                "This will delete any unsaved project data. Are you sure?",
-                                                                QMessageBox::No | QMessageBox::Yes,
-                                                                QMessageBox::No);
+void MainWindow::closeEvent(QCloseEvent* event) {
+    QMessageBox::StandardButton resBtn = QMessageBox::question(
+        this, "VMT", "This will delete any unsaved project data. Are you sure?",
+        QMessageBox::No | QMessageBox::Yes, QMessageBox::No);
     if (resBtn != QMessageBox::Yes) {
         event->ignore();
     } else {
@@ -166,115 +162,111 @@ void MainWindow::closeEvent (QCloseEvent *event)
     }
 }
 
-void MainWindow::ShowWarning(std::shared_ptr<UIStateData>){
-
-    if(!_form_warning){
-        if(GetContainer()->layout()->count()>0)
-        {
-            //_form_warning_state = dynamic_cast<QWidget*>(GetContainer()->layout()->children().at(0));
+void MainWindow::ShowWarning(std::shared_ptr<UIStateData>) {
+    if (!_form_warning) {
+        if (GetContainer()->layout()->count() > 0) {
+            //_form_warning_state =
+            //dynamic_cast<QWidget*>(GetContainer()->layout()->children().at(0));
             //_form_warning_state->setHidden(true);
-            _form_warning = new FormWarning(this,GetContainer());
+            _form_warning = new FormWarning(this, GetContainer());
             GetContainer()->layout()->addWidget(_form_warning);
-            GetContainer()->layout()->setContentsMargins(0,0,0,0);
+            GetContainer()->layout()->setContentsMargins(0, 0, 0, 0);
         }
     }
 }
 
-void MainWindow::keyReleaseEvent(QKeyEvent *event){
-    if(event->key() == Qt::Key_Control) {
+void MainWindow::keyReleaseEvent(QKeyEvent* event) {
+    if (event->key() == Qt::Key_Control) {
         qDebug() << "CTRL released";
         ctrlPressed = false;
     }
-    if(_state){
+    if (_state) {
         _state->OnKeyReleased(event);
     }
 }
 
-void MainWindow::keyPressEvent (QKeyEvent* event) {
-    if(event->key() == Qt::Key_Control) {
+void MainWindow::keyPressEvent(QKeyEvent* event) {
+    if (event->key() == Qt::Key_Control) {
         qDebug() << "CTRL pressed";
         ctrlPressed = true;
     }
-    if (event->key () == Qt::Key_Back) {
+    if (event->key() == Qt::Key_Back) {
         onBackClicked();
-        event->accept ();
-    } else
-    if(_state){
+        event->accept();
+    } else if (_state) {
         _state->OnKeyPressed(event);
     }
 }
 
-void MainWindow::HideWarning(bool undo){
-    if(_form_warning){
+void MainWindow::HideWarning(bool undo) {
+    if (_form_warning) {
         GetContainer()->layout()->removeWidget(_form_warning);
         delete _form_warning;
         _form_warning = nullptr;
         //_form_warning_state->setHidden(false);
-        if(undo) UndoForce();
+        if (undo) UndoForce();
     }
 }
 
-void MainWindow::onBackClicked(){
-    this->Undo();
-}
+void MainWindow::onBackClicked() { this->Undo(); }
 
-void MainWindow::onRefClicked(){
-    ClickableLabel *button = dynamic_cast<ClickableLabel*> (sender());
-    if(button)
-    {
+void MainWindow::onRefClicked() {
+    ClickableLabel* button = dynamic_cast<ClickableLabel*>(sender());
+    if (button) {
         QVariant var = button->property("state");
         unsigned int number = var.toUInt();
         bool need_continue = true;
-        while(need_continue&(this->undo.size()>number)) need_continue=this->Undo();
+        while (need_continue & (this->undo.size() > number))
+            need_continue = this->Undo();
     }
 }
 
-void MainWindow::OnChanged(std::shared_ptr<UIState>     state,std::shared_ptr<UIStateData> new_state_data){
-
+void MainWindow::OnChanged(std::shared_ptr<UIState> state,
+                           std::shared_ptr<UIStateData> new_state_data) {
     qDebug() << "MainWindow::OnChanged";
 
     bool find;
-    do{
+    do {
         find = false;
-        for(auto i=ui->widgetLabel->children().begin();
-            (i!=ui->widgetLabel->children().end())&&(!find);i++){
-            QObject *obj = *i;
+        for (auto i = ui->widgetLabel->children().begin();
+             (i != ui->widgetLabel->children().end()) && (!find); i++) {
+            QObject* obj = *i;
 
-            if(dynamic_cast<QPushButton*>(obj)) {
+            if (dynamic_cast<QPushButton*>(obj)) {
                 find = true;
-                ui->widgetLabel->layout()->removeWidget(dynamic_cast<QPushButton*>(obj));
+                ui->widgetLabel->layout()->removeWidget(
+                    dynamic_cast<QPushButton*>(obj));
                 delete obj;
                 obj = nullptr;
             }
-            if(dynamic_cast<QLabel*>(obj)) {
+            if (dynamic_cast<QLabel*>(obj)) {
                 find = true;
-                ui->widgetLabel->layout()->removeWidget(dynamic_cast<QLabel*>(obj));
+                ui->widgetLabel->layout()->removeWidget(
+                    dynamic_cast<QLabel*>(obj));
                 delete obj;
             }
         }
-    }while(find);
+    } while (find);
 
     unsigned int count = 0;
-    for(auto i: undo){
+    for (auto i : undo) {
         QString name = i->GetName();
-        name+="\\";
-        ClickableLabel *label = new ClickableLabel(name,ui->widgetLabel);
-
+        name += "\\";
+        ClickableLabel* label = new ClickableLabel(name, ui->widgetLabel);
 
         QFont font = label->font();
         font.setUnderline(true);
-        //font.setBold(true);
-        label->setProperty("state",count++);
-        label->setSizePolicy(QSizePolicy::Minimum,QSizePolicy::Minimum);
+        // font.setBold(true);
+        label->setProperty("state", count++);
+        label->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Minimum);
         label->setStyleSheet(VmtTheme::breadcrumbLinkStyle());
-        label->connect(label, SIGNAL(clicked()),
-                       this, SLOT(onRefClicked()));
+        label->connect(label, SIGNAL(clicked()), this, SLOT(onRefClicked()));
         label->setFont(font);
         ui->widgetLabel->layout()->addWidget(label);
     }
 
-    QLabel *label = new QLabel(new_state_data->GetName(),ui->widgetLabel);
-    label->setSizePolicy(QSizePolicy::Expanding,QSizePolicy::Maximum);
+    QLabel* label = new QLabel(new_state_data->GetName(), ui->widgetLabel);
+    label->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Maximum);
     label->setStyleSheet(VmtTheme::breadcrumbCurrentStyle());
     ui->widgetLabel->layout()->addWidget(label);
     ui->button_back->setHidden(undo.empty());
@@ -282,150 +274,122 @@ void MainWindow::OnChanged(std::shared_ptr<UIState>     state,std::shared_ptr<UI
     VmtTheme::applyThemedWidgets(this);
     VmtTheme::applyIconToolBarsInTree(this);
     qDebug() << "MainWindow::OnLoaded done";
-
 }
 
-QWidget* MainWindow::GetContainer(){
-    return ui->widget_container;
-}
+QWidget* MainWindow::GetContainer() { return ui->widget_container; }
 
-MainWindow::~MainWindow()
-{
+MainWindow::~MainWindow() {
     _state.reset();
     delete ui;
 }
 
-void MainWindow::on_button_new_machine_clicked()
-{
+void MainWindow::on_button_new_machine_clicked() {
     QVariant var = ui->button_new_machine->property("name");
-    QString  action  = var.toString();
+    QString action = var.toString();
     _state->Action(action);
 }
 
-void MainWindow::on_button_open_machine_clicked()
-{
+void MainWindow::on_button_open_machine_clicked() {
     QVariant var = ui->button_open_machine->property("name");
-    QString  action  = var.toString();
+    QString action = var.toString();
     _state->Action(action);
 }
 
-void MainWindow::on_button_save_clicked()
-{
+void MainWindow::on_button_save_clicked() {
     QVariant var = ui->button_save->property("name");
-    QString  action  = var.toString();
+    QString action = var.toString();
     _state->Action(action);
 }
 
-void MainWindow::on_button_export_clicked()
-{
+void MainWindow::on_button_export_clicked() {
     QVariant var = ui->button_export->property("name");
-    QString  action  = var.toString();
+    QString action = var.toString();
     _state->Action(action);
 }
 
-void MainWindow::on_button_export_plantuml_clicked()
-{
+void MainWindow::on_button_export_plantuml_clicked() {
     QVariant var = ui->button_export_plantuml->property("name");
     const QString action = var.toString();
     _state->Action(action);
 }
 
-void MainWindow::on_button_run_clicked()
-{
+void MainWindow::on_button_run_clicked() {
     QVariant var = ui->button_run->property("name");
-    QString  action  = var.toString();
+    QString action = var.toString();
     _state->Action(action);
-
 }
 
-void MainWindow::on_button_configure_clicked()
-{
+void MainWindow::on_button_configure_clicked() {
     QVariant var = ui->button_configure->property("name");
-    QString  action  = var.toString();
+    QString action = var.toString();
     _state->Action(action);
 }
 
-void MainWindow::on_button_ok_clicked()
-{
+void MainWindow::on_button_ok_clicked() {
     QVariant var = ui->button_ok->property("name");
-    QString  action  = var.toString();
+    QString action = var.toString();
     _state->Action(action);
 }
 
-void MainWindow::on_button_cancel_clicked()
-{
+void MainWindow::on_button_cancel_clicked() {
     QVariant var = ui->button_cancel->property("name");
-    QString  action  = var.toString();
+    QString action = var.toString();
     _state->Action(action);
 }
 
-void MainWindow::on_slider_zoom_sliderMoved(int position)
-{
+void MainWindow::on_slider_zoom_sliderMoved(int position) {
     _state->OnZoomChanged(position);
 }
 
-int  MainWindow::GetZoom(){
-    return ui->slider_zoom->sliderPosition();
-}
+int MainWindow::GetZoom() { return ui->slider_zoom->sliderPosition(); }
 
-
-void MainWindow::on_button_debug_back_clicked()
-{
+void MainWindow::on_button_debug_back_clicked() {
     QVariant var = ui->button_debug_back->property("name");
-    QString  action  = var.toString();
+    QString action = var.toString();
     _state->Action(action);
 }
 
-void MainWindow::on_button_debug_step_clicked()
-{
+void MainWindow::on_button_debug_step_clicked() {
     QVariant var = ui->button_debug_step->property("name");
-    QString  action  = var.toString();
+    QString action = var.toString();
     _state->Action(action);
 }
 
-void MainWindow::on_slider_zoom_sliderPressed()
-{
-
+void MainWindow::on_slider_zoom_sliderPressed() {
     _state->OnZoomChanged(ui->slider_zoom->sliderPosition());
 }
 
-void MainWindow::on_button_4th_clicked()
-{
+void MainWindow::on_button_4th_clicked() {
     QVariant var = ui->button_4th->property("name");
-    QString  action  = var.toString();
+    QString action = var.toString();
     _state->Action(action);
 }
 
-void MainWindow::on_button_debug_run_clicked()
-{
+void MainWindow::on_button_debug_run_clicked() {
     QVariant var = ui->button_debug_run->property("name");
-    QString  action  = var.toString();
+    QString action = var.toString();
     _state->Action(action);
 }
 
-void MainWindow::on_button_debug_pause_clicked()
-{
+void MainWindow::on_button_debug_pause_clicked() {
     QVariant var = ui->button_debug_pause->property("name");
-    QString  action  = var.toString();
+    QString action = var.toString();
     _state->Action(action);
 }
 
-void MainWindow::on_button_debug_stop_clicked()
-{
+void MainWindow::on_button_debug_stop_clicked() {
     QVariant var = ui->button_debug_stop->property("name");
-    QString  action  = var.toString();
+    QString action = var.toString();
     _state->Action(action);
 }
 
-void MainWindow::on_button_exercise_clicked()
-{
+void MainWindow::on_button_exercise_clicked() {
     QVariant var = ui->button_exercise->property("name");
-    QString  action  = var.toString();
+    QString action = var.toString();
     _state->Action(action);
 }
 
-void MainWindow::updateThemeButton()
-{
+void MainWindow::updateThemeButton() {
     const bool dark = VmtTheme::isDarkMode();
     ui->button_theme->blockSignals(true);
     ui->button_theme->setChecked(dark);
@@ -436,8 +400,7 @@ void MainWindow::updateThemeButton()
                                       : tr("Switch to dark theme"));
 }
 
-void MainWindow::applyTheme(bool dark)
-{
+void MainWindow::applyTheme(bool dark) {
     if (auto* app = qobject_cast<QApplication*>(QApplication::instance())) {
         VmtTheme::setDarkMode(dark, app);
     }
@@ -448,8 +411,7 @@ void MainWindow::applyTheme(bool dark)
     updateThemeButton();
 }
 
-void MainWindow::on_button_theme_toggled(bool checked)
-{
+void MainWindow::on_button_theme_toggled(bool checked) {
     Configuration::GetInstance().SetDarkTheme(checked);
     Configuration::GetInstance().Save();
     applyTheme(checked);

@@ -3,12 +3,10 @@
 
 #include "machineslibrary_global.h"
 
-class MACHINESLIBRARYSHARED_EXPORT MachinesLibrary
-{
-
-public:
-        int a;
+class MACHINESLIBRARYSHARED_EXPORT MachinesLibrary {
+   public:
+    int a;
     MachinesLibrary();
 };
 
-#endif // MACHINESLIBRARY_H
+#endif  // MACHINESLIBRARY_H

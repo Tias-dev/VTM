@@ -1,34 +1,34 @@
 #include "formdebugermachine.h"
-#include "vmticons.h"
-#include "ui_formdebugermachine.h"
-#include "vmtproject.h"
-#include "vmtactions/vmtactiontranslate.h"
-#include "screentools.h"
-#include "vmttheme.h"
+
 #include "configuration.h"
+#include "screentools.h"
+#include "ui_formdebugermachine.h"
+#include "vmtactions/vmtactiontranslate.h"
+#include "vmticons.h"
+#include "vmtproject.h"
+#include "vmttheme.h"
 
-
-FormDebugerMachine::FormDebugerMachine(QWidget *parent) :
-    QWidget(parent),
-    ui(new Ui::FormDebugerMachine),
-    _current_test(0),
-    _debugger(VMTProject::GetInstance().GetAlphabit(),VMTProject::GetInstance().GetCurrentMachine()),
-    _model(nullptr)
-{
+FormDebugerMachine::FormDebugerMachine(QWidget* parent)
+    : QWidget(parent),
+      ui(new Ui::FormDebugerMachine),
+      _current_test(0),
+      _debugger(VMTProject::GetInstance().GetAlphabit(),
+                VMTProject::GetInstance().GetCurrentMachine()),
+      _model(nullptr) {
     ui->setupUi(this);
     VmtTheme::polishWidgetTree(this);
     ui->widget_line->SetLine(_debugger.GetLine());
     ui->widget_editor->SetEnvironment(this);
-    ui->widget_editor->SetComplexMachine( _debugger.GetComplexMachine());
+    ui->widget_editor->SetComplexMachine(_debugger.GetComplexMachine());
     ui->widget_editor->GetComplexMachine()->DeselectAll();
 
     _stop = false;
 
-    if(VMTProject::GetInstance().IsTestMode()){
+    if (VMTProject::GetInstance().IsTestMode()) {
         ui->widget_line->SetTestMode();
         _model = createModel();
         ui->_test_list->setModel(_model);
-    }else {
+    } else {
         ui->_tests_frame->setVisible(false);
     }
 
@@ -38,20 +38,19 @@ FormDebugerMachine::FormDebugerMachine(QWidget *parent) :
     st.ResizeButton(ui->button_left_page);
     st.ResizeButton(ui->button_right);
     st.ResizeButton(ui->button_right_page);
-
 }
 
-QStandardItemModel *FormDebugerMachine::createModel()
-{
-    QStandardItemModel *model = new QStandardItemModel();
-    QList<QStandardItem *> listItem;
+QStandardItemModel* FormDebugerMachine::createModel() {
+    QStandardItemModel* model = new QStandardItemModel();
+    QList<QStandardItem*> listItem;
 
-    if(VMTProject::GetInstance().GetExercise()){
-        int i=1;
-        for([[maybe_unused]] auto &test : VMTProject::GetInstance().GetExercise()->GetTests()){
-            QStandardItem *item = new QStandardItem();
+    if (VMTProject::GetInstance().GetExercise()) {
+        int i = 1;
+        for ([[maybe_unused]] auto& test :
+             VMTProject::GetInstance().GetExercise()->GetTests()) {
+            QStandardItem* item = new QStandardItem();
             QString text("Test ");
-            text+= QString::number(i++);
+            text += QString::number(i++);
             item->setText(text);
             listItem << item;
         }
@@ -60,82 +59,83 @@ QStandardItemModel *FormDebugerMachine::createModel()
     return model;
 }
 
-void FormDebugerMachine::BeforeChange(std::shared_ptr<UIStateData>){
+void FormDebugerMachine::BeforeChange(std::shared_ptr<UIStateData>) {}
 
-}
+void FormDebugerMachine::AfterUndo(std::shared_ptr<UIStateData>) {}
 
-void FormDebugerMachine::AfterUndo(std::shared_ptr<UIStateData>) {
-
-}
-
-void FormDebugerMachine::ChangeZoom(int zoom){
+void FormDebugerMachine::ChangeZoom(int zoom) {
     ui->widget_editor->SetZoom(zoom);
 }
 
-void FormDebugerMachine::EnableActionHint([[maybe_unused]] const QString &hint,[[maybe_unused]] QPixmap& img) {};
-void FormDebugerMachine::DisableActionHint(){};
-void FormDebugerMachine::DisableAlphabit(){}
+void FormDebugerMachine::EnableActionHint([[maybe_unused]] const QString& hint,
+                                          [[maybe_unused]] QPixmap& img) {};
+void FormDebugerMachine::DisableActionHint() {};
+void FormDebugerMachine::DisableAlphabit() {}
 void FormDebugerMachine::DisableCalculator() {}
-void FormDebugerMachine::EnableAlphabit([[maybe_unused]] IVMTAlphabitSource* ,[[maybe_unused]] const QString& ,QPixmap &){}
-void FormDebugerMachine::EnableCalculator([[maybe_unused]] std::shared_ptr<IVMTMachine> ){}
-void FormDebugerMachine::EnableAnimation([[maybe_unused]] bool enable){};
+void FormDebugerMachine::EnableAlphabit([[maybe_unused]] IVMTAlphabitSource*,
+                                        [[maybe_unused]] const QString&,
+                                        QPixmap&) {}
+void FormDebugerMachine::EnableCalculator(
+    [[maybe_unused]] std::shared_ptr<IVMTMachine>) {}
+void FormDebugerMachine::EnableAnimation([[maybe_unused]] bool enable) {};
 
-UICanvas& FormDebugerMachine::GetGraphics(){
-    return  ui->widget_editor->GetCanvas();
+UICanvas& FormDebugerMachine::GetGraphics() {
+    return ui->widget_editor->GetCanvas();
 }
 
-std::weak_ptr<VMTComplexMachine> FormDebugerMachine::GetMachine(){
-    return std::weak_ptr<VMTComplexMachine>(ui->widget_editor->GetComplexMachine());
+std::weak_ptr<VMTComplexMachine> FormDebugerMachine::GetMachine() {
+    return std::weak_ptr<VMTComplexMachine>(
+        ui->widget_editor->GetComplexMachine());
 }
 
-void FormDebugerMachine::Repaint([[maybe_unused]] const QRect& rect){
+void FormDebugerMachine::Repaint([[maybe_unused]] const QRect& rect) {
     ui->widget_editor->update();
 }
 
-void FormDebugerMachine::MoveInScreen(QPoint &&shift){
+void FormDebugerMachine::MoveInScreen(QPoint&& shift) {
     ui->widget_editor->GetCanvas().MoveInScreen(shift);
 }
 
-void FormDebugerMachine::Move(QPoint &&shift){
+void FormDebugerMachine::Move(QPoint&& shift) {
     ui->widget_editor->GetCanvas().Move(shift);
 }
 
-void FormDebugerMachine::SetMachine(std::shared_ptr<VMTComplexMachine> machine){
+void FormDebugerMachine::SetMachine(
+    std::shared_ptr<VMTComplexMachine> machine) {
     ui->widget_editor->SetComplexMachine(machine);
     ui->widget_editor->update();
 }
 
-void FormDebugerMachine::OnLoaded(){
+void FormDebugerMachine::OnLoaded() {
     SetAction(std::shared_ptr<IVMTAction>(new VMTActionTranslate(this)));
 }
 
-void FormDebugerMachine::SetAction(std::shared_ptr<IVMTAction> action){
-    if(ui->widget_editor->GetAction()) ui->widget_editor->GetAction()->Cancel(this);
+void FormDebugerMachine::SetAction(std::shared_ptr<IVMTAction> action) {
+    if (ui->widget_editor->GetAction())
+        ui->widget_editor->GetAction()->Cancel(this);
     ui->widget_editor->GetAction() = action;
-    if(ui->widget_editor->GetAction()) ui->widget_editor->GetAction()->Enable(this);
+    if (ui->widget_editor->GetAction())
+        ui->widget_editor->GetAction()->Enable(this);
 }
 
-FormDebugerMachine::~FormDebugerMachine()
-{
-    delete ui;
-}
+FormDebugerMachine::~FormDebugerMachine() { delete ui; }
 
-void FormDebugerMachine::StartExercise(){
+void FormDebugerMachine::StartExercise() {
     _debugger.ToStart(this);
     _stop = false;
     _current_test = 0;
     PrepareTest();
-
 }
 
-void FormDebugerMachine::PrepareTest(){
-    if(VMTProject::GetInstance().GetExercise()){
+void FormDebugerMachine::PrepareTest() {
+    if (VMTProject::GetInstance().GetExercise()) {
         std::shared_ptr<Exercise> ex = VMTProject::GetInstance().GetExercise();
-        if(_current_test<static_cast<int>(ex->GetTests().size())){
-            std::shared_ptr<Exercise> ex = VMTProject::GetInstance().GetExercise();
+        if (_current_test < static_cast<int>(ex->GetTests().size())) {
+            std::shared_ptr<Exercise> ex =
+                VMTProject::GetInstance().GetExercise();
             auto test = ex->GetTests().at(_current_test);
 
-            for(QChar &ch: test.first){
+            for (QChar& ch : test.first) {
                 _debugger.GetLine()->SetSignAtMachine(ch.toLatin1());
                 _debugger.GetLine()->ShiftRight();
             }
@@ -150,29 +150,33 @@ void FormDebugerMachine::PrepareTest(){
     }
 }
 
-void FormDebugerMachine::CheckTest(){
-    if(VMTProject::GetInstance().GetExercise()){
+void FormDebugerMachine::CheckTest() {
+    if (VMTProject::GetInstance().GetExercise()) {
         std::shared_ptr<Exercise> ex = VMTProject::GetInstance().GetExercise();
-        if(_current_test<static_cast<int>(ex->GetTests().size())){
-            std::shared_ptr<Exercise> ex = VMTProject::GetInstance().GetExercise();
+        if (_current_test < static_cast<int>(ex->GetTests().size())) {
+            std::shared_ptr<Exercise> ex =
+                VMTProject::GetInstance().GetExercise();
             auto test = ex->GetTests().at(_current_test);
 
             int length = test.second.length();
-            for(int i=0;i<length;i++) _debugger.GetLine()->ShiftLeft();
+            for (int i = 0; i < length; i++) _debugger.GetLine()->ShiftLeft();
 
-            bool ok=true;
-            for(QChar &ch: test.second){
-                if(_debugger.GetLine()->GetValueAtMachine()!=ch.toLatin1()) ok=false;
+            bool ok = true;
+            for (QChar& ch : test.second) {
+                if (_debugger.GetLine()->GetValueAtMachine() != ch.toLatin1())
+                    ok = false;
                 _debugger.GetLine()->ShiftRight();
             }
-            if(ok) {
-                _model->item(_current_test)->setIcon(QIcon(VmtIcons::okPixmap()));
+            if (ok) {
+                _model->item(_current_test)
+                    ->setIcon(QIcon(VmtIcons::okPixmap()));
                 _debugger.GetLine()->Clear();
                 _current_test++;
                 _debugger.ToStart(this);
                 PrepareTest();
-            } else  {
-                _model->item(_current_test)->setIcon(QIcon(VmtIcons::cancelPixmap()));
+            } else {
+                _model->item(_current_test)
+                    ->setIcon(QIcon(VmtIcons::cancelPixmap()));
 
                 QMessageBox box;
                 box.setText("Test failed");
@@ -182,7 +186,7 @@ void FormDebugerMachine::CheckTest(){
     }
 }
 
-void FormDebugerMachine::Run(){
+void FormDebugerMachine::Run() {
     _controller->EnableDebugStep(false);
     _controller->EnableDebugRun(false);
     _controller->EnableDebugStop(true);
@@ -191,48 +195,38 @@ void FormDebugerMachine::Run(){
     RunTimer();
 }
 
-void FormDebugerMachine::RunTimer(){
-    if((!_debugger.IsFinish())&&(!_stop)){
+void FormDebugerMachine::RunTimer() {
+    if ((!_debugger.IsFinish()) && (!_stop)) {
         Step();
-        _timer.singleShot(50,this,SLOT(RunTimer()));
-    } else{
-        _stop=false;
+        _timer.singleShot(50, this, SLOT(RunTimer()));
+    } else {
+        _stop = false;
         _controller->EnableDebugStep(true);
         _controller->EnableDebugRun(true);
         _controller->EnableDebugStop(false);
         //_debugger.ToStart(this);
 
-        if(VMTProject::GetInstance().IsTestMode()){
+        if (VMTProject::GetInstance().IsTestMode()) {
             CheckTest();
         }
     }
 }
 
-void FormDebugerMachine::Stop(){
-    _stop = true;
-}
+void FormDebugerMachine::Stop() { _stop = true; }
 
-void FormDebugerMachine::Step(){
+void FormDebugerMachine::Step() {
     _debugger.Step(this);
     ui->widget_line->Repaint();
 }
 
-void FormDebugerMachine::on_button_left_page_clicked()
-{
+void FormDebugerMachine::on_button_left_page_clicked() {
     ui->widget_line->LeftPage();
 }
 
-void FormDebugerMachine::on_button_left_clicked()
-{
-    ui->widget_line->Left();
-}
+void FormDebugerMachine::on_button_left_clicked() { ui->widget_line->Left(); }
 
-void FormDebugerMachine::on_button_right_clicked()
-{
-    ui->widget_line->Right();
-}
+void FormDebugerMachine::on_button_right_clicked() { ui->widget_line->Right(); }
 
-void FormDebugerMachine::on_button_right_page_clicked()
-{
+void FormDebugerMachine::on_button_right_page_clicked() {
     ui->widget_line->RightPage();
 }

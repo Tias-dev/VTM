@@ -1,28 +1,28 @@
 #ifndef MAINWINDOW_H
 #define MAINWINDOW_H
 
+#include <QCloseEvent>
+#include <QKeyEvent>
 #include <QMainWindow>
 #include <QWidget>
 
-#include "statecontroller.h"
 #include "formwarning.h"
 #include "isCtrlPressed.h"
-#include <QCloseEvent>
-#include <QKeyEvent>
+#include "statecontroller.h"
 
 namespace Ui {
 class MainWindow;
 }
 
-class MainWindow : public QMainWindow, public StateController
-{
+class MainWindow : public QMainWindow, public StateController {
     Q_OBJECT
 
-public:
-    explicit MainWindow(QWidget *parent = 0);
+   public:
+    explicit MainWindow(QWidget* parent = 0);
     ~MainWindow();
     QWidget* GetContainer() override;
-    void OnChanged(std::shared_ptr<UIState>     state,std::shared_ptr<UIStateData> new_state_data) override;
+    void OnChanged(std::shared_ptr<UIState> state,
+                   std::shared_ptr<UIStateData> new_state_data) override;
     void ShowWarning(std::shared_ptr<UIStateData>) override;
     void HideWarning(bool undo) override;
     void EnableExercise(bool enable) override;
@@ -43,19 +43,21 @@ public:
     void EnableCancel(bool enable) override;
     void EnableZoom(bool enable) override;
     void Enable4thExport(bool enable) override;
-    void closeEvent (QCloseEvent *event) override;
-    int  GetZoom() override;
+    void closeEvent(QCloseEvent* event) override;
+    int GetZoom() override;
     void applyTheme(bool dark);
     void updateThemeButton();
-protected:
-    void keyPressEvent (QKeyEvent* event) override;
-    void keyReleaseEvent(QKeyEvent *) override;
-private:
-    Ui::MainWindow *ui;
-    FormWarning *_form_warning;
-    QWidget     *_form_warning_state;
 
-private slots:
+   protected:
+    void keyPressEvent(QKeyEvent* event) override;
+    void keyReleaseEvent(QKeyEvent*) override;
+
+   private:
+    Ui::MainWindow* ui;
+    FormWarning* _form_warning;
+    QWidget* _form_warning_state;
+
+   private slots:
     void onBackClicked();
     void onRefClicked();
     void on_button_new_machine_clicked();
@@ -79,4 +81,4 @@ private slots:
     void on_button_theme_toggled(bool checked);
 };
 
-#endif // MAINWINDOW_H
+#endif  // MAINWINDOW_H

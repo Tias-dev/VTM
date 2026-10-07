@@ -6,21 +6,21 @@ class VMTComplexMachine;
 class VMTLine;
 class IVMTEnvironment;
 
-#include "vmtundoelement.h"
 #include "interfaces/ivmtundoobserver.h"
+#include "vmtundoelement.h"
 
-class VMTUndoManager
-{
-protected:
+class VMTUndoManager {
+   protected:
     std::stack<std::shared_ptr<VMTUndoElement>> _stack;
-    IVMTUndoObserver *_observer;
-public:
+    IVMTUndoObserver* _observer;
+
+   public:
     VMTUndoManager();
-    void SetObserver(IVMTUndoObserver * observer);
+    void SetObserver(IVMTUndoObserver* observer);
     void Remember(std::shared_ptr<VMTUndoElement> element);
-    bool Recall(IVMTEnvironment *environment);
+    bool Recall(IVMTEnvironment* environment);
     void Clear();
     bool IsEnable();
 };
 
-#endif // VMTUNDOMANAGER_H
+#endif  // VMTUNDOMANAGER_H

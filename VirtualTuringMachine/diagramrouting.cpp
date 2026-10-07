@@ -1,21 +1,17 @@
 #include "diagramrouting.h"
 
-#include "interfaces/IVMTTransition.h"
-
 #include <algorithm>
 
-std::int64_t MachineSpatialIndex::cellKey(int x, int y)
-{
+#include "interfaces/IVMTTransition.h"
+
+std::int64_t MachineSpatialIndex::cellKey(int x, int y) {
     return (static_cast<std::int64_t>(x) << 32) ^ static_cast<std::uint32_t>(y);
 }
 
 MachineSpatialIndex::MachineSpatialIndex(int cellSize)
-    : _cellSize(std::max(8, cellSize))
-{
-}
+    : _cellSize(std::max(8, cellSize)) {}
 
-void MachineSpatialIndex::addRect(const QRect& rect)
-{
+void MachineSpatialIndex::addRect(const QRect& rect) {
     if (rect.isEmpty()) {
         return;
     }
@@ -32,9 +28,9 @@ void MachineSpatialIndex::addRect(const QRect& rect)
     }
 }
 
-void MachineSpatialIndex::rebuild(const std::vector<std::shared_ptr<IVMTMachine>>& machines,
-                                int clearanceMargin)
-{
+void MachineSpatialIndex::rebuild(
+    const std::vector<std::shared_ptr<IVMTMachine>>& machines,
+    int clearanceMargin) {
     _cells.clear();
     for (const std::shared_ptr<IVMTMachine>& machine : machines) {
         if (!machine) {
@@ -44,15 +40,16 @@ void MachineSpatialIndex::rebuild(const std::vector<std::shared_ptr<IVMTMachine>
         QRect obstacle = machine->GetBounds();
         if (clearanceMargin > 0) {
             obstacle = obstacle.marginsAdded(
-                QMargins(clearanceMargin, clearanceMargin, clearanceMargin, clearanceMargin));
+                QMargins(clearanceMargin, clearanceMargin, clearanceMargin,
+                         clearanceMargin));
         }
         addRect(obstacle);
     }
 }
 
-bool MachineSpatialIndex::contains(const QPoint& point) const
-{
-    const std::int64_t key = cellKey(point.x() / _cellSize, point.y() / _cellSize);
+bool MachineSpatialIndex::contains(const QPoint& point) const {
+    const std::int64_t key =
+        cellKey(point.x() / _cellSize, point.y() / _cellSize);
     const auto it = _cells.find(key);
     if (it == _cells.end()) {
         return false;
@@ -67,8 +64,8 @@ bool MachineSpatialIndex::contains(const QPoint& point) const
     return false;
 }
 
-void DiagramRoutingPass::begin(const std::vector<std::shared_ptr<IVMTTransition>>& transitions)
-{
+void DiagramRoutingPass::begin(
+    const std::vector<std::shared_ptr<IVMTTransition>>& transitions) {
     _snapshot.clear();
     _snapshot.reserve(transitions.size());
 
@@ -76,23 +73,24 @@ void DiagramRoutingPass::begin(const std::vector<std::shared_ptr<IVMTTransition>
         if (!transition) {
             continue;
         }
-        const std::vector<QPoint> polyline = transition->GetCommittedRoutingPolyline();
+        const std::vector<QPoint> polyline =
+            transition->GetCommittedRoutingPolyline();
         if (polyline.size() >= 2) {
-            _snapshot.push_back({transition.get(), {polyline.begin(), polyline.end()}});
+            _snapshot.push_back(
+                {transition.get(), {polyline.begin(), polyline.end()}});
         }
     }
 
     _active = true;
 }
 
-void DiagramRoutingPass::end()
-{
+void DiagramRoutingPass::end() {
     _active = false;
     _snapshot.clear();
 }
 
-std::vector<path_t> DiagramRoutingPass::blockedPathsFor(const IVMTTransition* exclude) const
-{
+std::vector<path_t> DiagramRoutingPass::blockedPathsFor(
+    const IVMTTransition* exclude) const {
     std::vector<path_t> blockedPaths;
     if (!_active) {
         return blockedPaths;

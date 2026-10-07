@@ -24,40 +24,38 @@
 
 QT_BEGIN_NAMESPACE
 
-class Ui_FormNewProject
-{
-public:
-    QHBoxLayout *horizontalLayout;
-    QScrollArea *scrollArea;
-    QWidget *scrollAreaWidgetContents;
-    QHBoxLayout *horizontalLayout_2;
-    QFrame *frame;
-    QVBoxLayout *verticalLayout;
-    QToolButton *button_create;
-    QFrame *frame_2;
-    QFrame *frame_5;
-    QVBoxLayout *verticalLayout_2;
-    QLabel *label;
-    QLineEdit *text_project_name;
-    QLabel *label_3;
-    QFrame *frame_3;
-    QHBoxLayout *horizontalLayout_3;
-    QLineEdit *text_project_location;
-    QToolButton *button_project_location;
-    QLabel *label_4;
-    QWidget *widget_4;
-    QHBoxLayout *horizontalLayout_6;
-    QToolButton *button_z2;
-    QToolButton *button_z3;
-    QToolButton *button_z4;
-    QToolButton *button_z10;
-    QToolButton *button_z16;
-    QToolButton *button_z80;
-    QWidget *widget_6;
-    QTextEdit *text_alphabit;
+class Ui_FormNewProject {
+   public:
+    QHBoxLayout* horizontalLayout;
+    QScrollArea* scrollArea;
+    QWidget* scrollAreaWidgetContents;
+    QHBoxLayout* horizontalLayout_2;
+    QFrame* frame;
+    QVBoxLayout* verticalLayout;
+    QToolButton* button_create;
+    QFrame* frame_2;
+    QFrame* frame_5;
+    QVBoxLayout* verticalLayout_2;
+    QLabel* label;
+    QLineEdit* text_project_name;
+    QLabel* label_3;
+    QFrame* frame_3;
+    QHBoxLayout* horizontalLayout_3;
+    QLineEdit* text_project_location;
+    QToolButton* button_project_location;
+    QLabel* label_4;
+    QWidget* widget_4;
+    QHBoxLayout* horizontalLayout_6;
+    QToolButton* button_z2;
+    QToolButton* button_z3;
+    QToolButton* button_z4;
+    QToolButton* button_z10;
+    QToolButton* button_z16;
+    QToolButton* button_z80;
+    QWidget* widget_6;
+    QTextEdit* text_alphabit;
 
-    void setupUi(QWidget *FormNewProject)
-    {
+    void setupUi(QWidget* FormNewProject) {
         if (FormNewProject->objectName().isEmpty())
             FormNewProject->setObjectName(QString::fromUtf8("FormNewProject"));
         FormNewProject->resize(549, 571);
@@ -73,10 +71,12 @@ public:
         scrollArea->setSizeAdjustPolicy(QAbstractScrollArea::AdjustToContents);
         scrollArea->setWidgetResizable(true);
         scrollAreaWidgetContents = new QWidget();
-        scrollAreaWidgetContents->setObjectName(QString::fromUtf8("scrollAreaWidgetContents"));
+        scrollAreaWidgetContents->setObjectName(
+            QString::fromUtf8("scrollAreaWidgetContents"));
         scrollAreaWidgetContents->setGeometry(QRect(0, 0, 549, 571));
         horizontalLayout_2 = new QHBoxLayout(scrollAreaWidgetContents);
-        horizontalLayout_2->setObjectName(QString::fromUtf8("horizontalLayout_2"));
+        horizontalLayout_2->setObjectName(
+            QString::fromUtf8("horizontalLayout_2"));
         horizontalLayout_2->setContentsMargins(0, 0, 0, 0);
         frame = new QFrame(scrollAreaWidgetContents);
         frame->setObjectName(QString::fromUtf8("frame"));
@@ -95,11 +95,13 @@ public:
         QSizePolicy sizePolicy1(QSizePolicy::Preferred, QSizePolicy::Preferred);
         sizePolicy1.setHorizontalStretch(0);
         sizePolicy1.setVerticalStretch(0);
-        sizePolicy1.setHeightForWidth(button_create->sizePolicy().hasHeightForWidth());
+        sizePolicy1.setHeightForWidth(
+            button_create->sizePolicy().hasHeightForWidth());
         button_create->setSizePolicy(sizePolicy1);
         button_create->setStyleSheet(QString::fromUtf8(""));
         QIcon icon;
-        icon.addFile(QString::fromUtf8(":/Files/images/ok.png"), QSize(), QIcon::Normal, QIcon::Off);
+        icon.addFile(QString::fromUtf8(":/Files/images/ok.png"), QSize(),
+                     QIcon::Normal, QIcon::Off);
         button_create->setIcon(icon);
         button_create->setIconSize(QSize(32, 32));
         button_create->setAutoRaise(true);
@@ -111,13 +113,13 @@ public:
         QSizePolicy sizePolicy2(QSizePolicy::Preferred, QSizePolicy::Expanding);
         sizePolicy2.setHorizontalStretch(0);
         sizePolicy2.setVerticalStretch(0);
-        sizePolicy2.setHeightForWidth(frame_2->sizePolicy().hasHeightForWidth());
+        sizePolicy2.setHeightForWidth(
+            frame_2->sizePolicy().hasHeightForWidth());
         frame_2->setSizePolicy(sizePolicy2);
         frame_2->setFrameShape(QFrame::NoFrame);
         frame_2->setFrameShadow(QFrame::Raised);
 
         verticalLayout->addWidget(frame_2);
-
 
         horizontalLayout_2->addWidget(frame);
 
@@ -126,7 +128,8 @@ public:
         QSizePolicy sizePolicy3(QSizePolicy::Expanding, QSizePolicy::Expanding);
         sizePolicy3.setHorizontalStretch(0);
         sizePolicy3.setVerticalStretch(0);
-        sizePolicy3.setHeightForWidth(frame_5->sizePolicy().hasHeightForWidth());
+        sizePolicy3.setHeightForWidth(
+            frame_5->sizePolicy().hasHeightForWidth());
         frame_5->setSizePolicy(sizePolicy3);
         frame_5->setFrameShape(QFrame::NoFrame);
         frame_5->setFrameShadow(QFrame::Raised);
@@ -146,11 +149,13 @@ public:
         verticalLayout_2->addWidget(label);
 
         text_project_name = new QLineEdit(frame_5);
-        text_project_name->setObjectName(QString::fromUtf8("text_project_name"));
+        text_project_name->setObjectName(
+            QString::fromUtf8("text_project_name"));
         QSizePolicy sizePolicy5(QSizePolicy::Expanding, QSizePolicy::Maximum);
         sizePolicy5.setHorizontalStretch(0);
         sizePolicy5.setVerticalStretch(0);
-        sizePolicy5.setHeightForWidth(text_project_name->sizePolicy().hasHeightForWidth());
+        sizePolicy5.setHeightForWidth(
+            text_project_name->sizePolicy().hasHeightForWidth());
         text_project_name->setSizePolicy(sizePolicy5);
 
         verticalLayout_2->addWidget(text_project_name);
@@ -160,7 +165,8 @@ public:
         QSizePolicy sizePolicy6(QSizePolicy::Preferred, QSizePolicy::Maximum);
         sizePolicy6.setHorizontalStretch(0);
         sizePolicy6.setVerticalStretch(0);
-        sizePolicy6.setHeightForWidth(label_3->sizePolicy().hasHeightForWidth());
+        sizePolicy6.setHeightForWidth(
+            label_3->sizePolicy().hasHeightForWidth());
         label_3->setSizePolicy(sizePolicy6);
         label_3->setFont(font);
 
@@ -171,23 +177,26 @@ public:
         frame_3->setFrameShape(QFrame::NoFrame);
         frame_3->setFrameShadow(QFrame::Raised);
         horizontalLayout_3 = new QHBoxLayout(frame_3);
-        horizontalLayout_3->setObjectName(QString::fromUtf8("horizontalLayout_3"));
+        horizontalLayout_3->setObjectName(
+            QString::fromUtf8("horizontalLayout_3"));
         horizontalLayout_3->setContentsMargins(0, 0, 0, 0);
         text_project_location = new QLineEdit(frame_3);
-        text_project_location->setObjectName(QString::fromUtf8("text_project_location"));
+        text_project_location->setObjectName(
+            QString::fromUtf8("text_project_location"));
 
         horizontalLayout_3->addWidget(text_project_location);
 
         button_project_location = new QToolButton(frame_3);
-        button_project_location->setObjectName(QString::fromUtf8("button_project_location"));
+        button_project_location->setObjectName(
+            QString::fromUtf8("button_project_location"));
         QSizePolicy sizePolicy7(QSizePolicy::Fixed, QSizePolicy::Maximum);
         sizePolicy7.setHorizontalStretch(0);
         sizePolicy7.setVerticalStretch(0);
-        sizePolicy7.setHeightForWidth(button_project_location->sizePolicy().hasHeightForWidth());
+        sizePolicy7.setHeightForWidth(
+            button_project_location->sizePolicy().hasHeightForWidth());
         button_project_location->setSizePolicy(sizePolicy7);
 
         horizontalLayout_3->addWidget(button_project_location);
-
 
         verticalLayout_2->addWidget(frame_3);
 
@@ -200,18 +209,21 @@ public:
         widget_4 = new QWidget(frame_5);
         widget_4->setObjectName(QString::fromUtf8("widget_4"));
         widget_4->setEnabled(true);
-        sizePolicy6.setHeightForWidth(widget_4->sizePolicy().hasHeightForWidth());
+        sizePolicy6.setHeightForWidth(
+            widget_4->sizePolicy().hasHeightForWidth());
         widget_4->setSizePolicy(sizePolicy6);
         widget_4->setLayoutDirection(Qt::LeftToRight);
         widget_4->setStyleSheet(QString::fromUtf8(""));
         horizontalLayout_6 = new QHBoxLayout(widget_4);
-        horizontalLayout_6->setObjectName(QString::fromUtf8("horizontalLayout_6"));
+        horizontalLayout_6->setObjectName(
+            QString::fromUtf8("horizontalLayout_6"));
         horizontalLayout_6->setContentsMargins(0, 0, 0, 0);
         button_z2 = new QToolButton(widget_4);
         button_z2->setObjectName(QString::fromUtf8("button_z2"));
         button_z2->setStyleSheet(QString::fromUtf8("background:white"));
         QIcon icon1;
-        icon1.addFile(QString::fromUtf8(":/Files/images/alphabet/z2.png"), QSize(), QIcon::Normal, QIcon::Off);
+        icon1.addFile(QString::fromUtf8(":/Files/images/alphabet/z2.png"),
+                      QSize(), QIcon::Normal, QIcon::Off);
         button_z2->setIcon(icon1);
         button_z2->setIconSize(QSize(32, 32));
 
@@ -221,7 +233,8 @@ public:
         button_z3->setObjectName(QString::fromUtf8("button_z3"));
         button_z3->setStyleSheet(QString::fromUtf8("background:white"));
         QIcon icon2;
-        icon2.addFile(QString::fromUtf8(":/Files/images/alphabet/z3.png"), QSize(), QIcon::Normal, QIcon::Off);
+        icon2.addFile(QString::fromUtf8(":/Files/images/alphabet/z3.png"),
+                      QSize(), QIcon::Normal, QIcon::Off);
         button_z3->setIcon(icon2);
         button_z3->setIconSize(QSize(32, 32));
 
@@ -231,7 +244,8 @@ public:
         button_z4->setObjectName(QString::fromUtf8("button_z4"));
         button_z4->setStyleSheet(QString::fromUtf8("background:white"));
         QIcon icon3;
-        icon3.addFile(QString::fromUtf8(":/Files/images/alphabet/z8.png"), QSize(), QIcon::Normal, QIcon::Off);
+        icon3.addFile(QString::fromUtf8(":/Files/images/alphabet/z8.png"),
+                      QSize(), QIcon::Normal, QIcon::Off);
         button_z4->setIcon(icon3);
         button_z4->setIconSize(QSize(32, 32));
 
@@ -241,7 +255,8 @@ public:
         button_z10->setObjectName(QString::fromUtf8("button_z10"));
         button_z10->setStyleSheet(QString::fromUtf8("background:white"));
         QIcon icon4;
-        icon4.addFile(QString::fromUtf8(":/Files/images/alphabet/z10.png"), QSize(), QIcon::Normal, QIcon::Off);
+        icon4.addFile(QString::fromUtf8(":/Files/images/alphabet/z10.png"),
+                      QSize(), QIcon::Normal, QIcon::Off);
         button_z10->setIcon(icon4);
         button_z10->setIconSize(QSize(32, 32));
 
@@ -251,7 +266,8 @@ public:
         button_z16->setObjectName(QString::fromUtf8("button_z16"));
         button_z16->setStyleSheet(QString::fromUtf8("background:white"));
         QIcon icon5;
-        icon5.addFile(QString::fromUtf8(":/Files/images/alphabet/z16.png"), QSize(), QIcon::Normal, QIcon::Off);
+        icon5.addFile(QString::fromUtf8(":/Files/images/alphabet/z16.png"),
+                      QSize(), QIcon::Normal, QIcon::Off);
         button_z16->setIcon(icon5);
         button_z16->setIconSize(QSize(32, 32));
 
@@ -261,7 +277,8 @@ public:
         button_z80->setObjectName(QString::fromUtf8("button_z80"));
         button_z80->setStyleSheet(QString::fromUtf8("background:white"));
         QIcon icon6;
-        icon6.addFile(QString::fromUtf8(":/Files/images/alphabet/z80.png"), QSize(), QIcon::Normal, QIcon::Off);
+        icon6.addFile(QString::fromUtf8(":/Files/images/alphabet/z80.png"),
+                      QSize(), QIcon::Normal, QIcon::Off);
         button_z80->setIcon(icon6);
         button_z80->setIconSize(QSize(32, 32));
 
@@ -272,11 +289,11 @@ public:
         QSizePolicy sizePolicy8(QSizePolicy::Expanding, QSizePolicy::Preferred);
         sizePolicy8.setHorizontalStretch(0);
         sizePolicy8.setVerticalStretch(0);
-        sizePolicy8.setHeightForWidth(widget_6->sizePolicy().hasHeightForWidth());
+        sizePolicy8.setHeightForWidth(
+            widget_6->sizePolicy().hasHeightForWidth());
         widget_6->setSizePolicy(sizePolicy8);
 
         horizontalLayout_6->addWidget(widget_6);
-
 
         verticalLayout_2->addWidget(widget_4);
 
@@ -286,41 +303,48 @@ public:
 
         verticalLayout_2->addWidget(text_alphabit);
 
-
         horizontalLayout_2->addWidget(frame_5);
 
         scrollArea->setWidget(scrollAreaWidgetContents);
 
         horizontalLayout->addWidget(scrollArea);
 
-
         retranslateUi(FormNewProject);
 
         QMetaObject::connectSlotsByName(FormNewProject);
-    } // setupUi
+    }  // setupUi
 
-    void retranslateUi(QWidget *FormNewProject)
-    {
-        FormNewProject->setWindowTitle(QCoreApplication::translate("FormNewProject", "Form", nullptr));
+    void retranslateUi(QWidget* FormNewProject) {
+        FormNewProject->setWindowTitle(
+            QCoreApplication::translate("FormNewProject", "Form", nullptr));
         button_create->setText(QString());
-        label->setText(QCoreApplication::translate("FormNewProject", "Project Name", nullptr));
-        label_3->setText(QCoreApplication::translate("FormNewProject", "Location", nullptr));
-        button_project_location->setText(QCoreApplication::translate("FormNewProject", "...", nullptr));
-        label_4->setText(QCoreApplication::translate("FormNewProject", "Alphabet", nullptr));
-        button_z2->setText(QCoreApplication::translate("FormNewProject", "...", nullptr));
-        button_z3->setText(QCoreApplication::translate("FormNewProject", "...", nullptr));
-        button_z4->setText(QCoreApplication::translate("FormNewProject", "...", nullptr));
-        button_z10->setText(QCoreApplication::translate("FormNewProject", "...", nullptr));
-        button_z16->setText(QCoreApplication::translate("FormNewProject", "...", nullptr));
-        button_z80->setText(QCoreApplication::translate("FormNewProject", "...", nullptr));
-    } // retranslateUi
-
+        label->setText(QCoreApplication::translate("FormNewProject",
+                                                   "Project Name", nullptr));
+        label_3->setText(
+            QCoreApplication::translate("FormNewProject", "Location", nullptr));
+        button_project_location->setText(
+            QCoreApplication::translate("FormNewProject", "...", nullptr));
+        label_4->setText(
+            QCoreApplication::translate("FormNewProject", "Alphabet", nullptr));
+        button_z2->setText(
+            QCoreApplication::translate("FormNewProject", "...", nullptr));
+        button_z3->setText(
+            QCoreApplication::translate("FormNewProject", "...", nullptr));
+        button_z4->setText(
+            QCoreApplication::translate("FormNewProject", "...", nullptr));
+        button_z10->setText(
+            QCoreApplication::translate("FormNewProject", "...", nullptr));
+        button_z16->setText(
+            QCoreApplication::translate("FormNewProject", "...", nullptr));
+        button_z80->setText(
+            QCoreApplication::translate("FormNewProject", "...", nullptr));
+    }  // retranslateUi
 };
 
 namespace Ui {
-    class FormNewProject: public Ui_FormNewProject {};
-} // namespace Ui
+class FormNewProject : public Ui_FormNewProject {};
+}  // namespace Ui
 
 QT_END_NAMESPACE
 
-#endif // UI_FORMNEWPROJECT_H
+#endif  // UI_FORMNEWPROJECT_H
