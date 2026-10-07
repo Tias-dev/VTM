@@ -1,11 +1,26 @@
 #include "configuration.h"
 
 #include <QCoreApplication>
+#include <QDir>
 #include <QFile>
+#include <QStandardPaths>
 #include <QXmlStreamReader>
 #include <QXmlStreamWriter>
 
 Configuration Configuration::instance;
+
+namespace {
+QString configurationFilePath() {
+    QString directory =
+        QStandardPaths::writableLocation(QStandardPaths::AppConfigLocation);
+    if (directory.isEmpty()) {
+        directory = QDir::homePath();
+    }
+    QDir().mkpath(directory);
+    qDebug() << "Config path: " << QDir(directory).filePath(QStringLiteral("config.xml")) << '\n';
+    return QDir(directory).filePath(QStringLiteral("config.xml"));
+}
+}  // namespace
 
 Configuration::Configuration() : _dark_theme(false) {}
 
@@ -87,10 +102,8 @@ void Configuration::LoadExercises() {
 void Configuration::Init(QApplication* app) {
     LoadExercises();
     _app = app;
-    _default_location = _app->applicationDirPath();
-    QString filename = _default_location;
-    filename.append("/config.xml");
-    QFile file(filename);
+    _default_location = QDir::homePath();
+    QFile file(configurationFilePath());
 
     if (!file.open(QFile::ReadOnly | QFile::Text)) {
         //        QMessageBox box;
@@ -119,9 +132,7 @@ void Configuration::Init(QApplication* app) {
 }
 
 void Configuration::Save() {
-    QString filename = _app->applicationDirPath();
-    filename.append("/config.xml");
-    QFile file(filename);
+    QFile file(configurationFilePath());
 
     if (!file.open(QFile::WriteOnly | QFile::Text)) {
         // qDebug(qPrintable(QString("Error: Cannot write file %1

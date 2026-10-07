@@ -89,7 +89,6 @@ bool run(const QString& path, const QString& machineName,
     VMTDebuger debugger(project.GetAlphabit(), machine);
     for (long position = 0; position < input.size(); ++position) {
         debugger.GetLine()->SetValueAt(position + 1, input[position].toLatin1());
-        QTextStream(stderr) << "Input: " << input[position].toLatin1() << "; code: " << int(input[position.toLatin1()]) << Qt::endl;
     }
     debugger.GetLine()->SetMachinePosition(input.size() + 1);
 

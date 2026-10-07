@@ -28,4 +28,6 @@ in
       qtsvg
       qtimageformats
     ];
+
+    meta.mainProgram = "VTM";
   }
