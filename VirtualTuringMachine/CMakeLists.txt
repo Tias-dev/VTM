@@ -10,7 +10,7 @@ if(APPLE AND NOT CMAKE_PREFIX_PATH)
       "/opt/homebrew/opt/qt@5"
       "/usr/local/opt/qt@5")
   foreach(_qt_path IN LISTS _qt5_mac_candidates)
-    if(EXISTS "${_qt_path}/lib/cmake/Qt5/Qt5Config.cmake")
+    if(EXISTS "${_qt_path}/lib/cmake/Qt6/Qt6Config.cmake")
       list(APPEND CMAKE_PREFIX_PATH "${_qt_path}")
       break()
     endif()
@@ -22,11 +22,10 @@ set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTOUIC ON)
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 
-find_package(QT NAMES Qt5 REQUIRED COMPONENTS Core Gui Widgets)
-find_package(Qt5 REQUIRED COMPONENTS Core Gui Widgets)
+find_package(Qt6 REQUIRED COMPONENTS Core Gui Widgets)
 
 if(APPLE)
-  get_target_property(_qt_core_location Qt5::Core LOCATION)
+  get_target_property(_qt_core_location Qt6::Core LOCATION)
   if(_qt_core_location)
     get_filename_component(_qt_lib_dir "${_qt_core_location}" DIRECTORY)
     execute_process(
@@ -54,7 +53,7 @@ file(
   GLOB_RECURSE VTM_SOURCES
   LIST_DIRECTORIES FALSE
   *.cpp)
-list(FILTER VTM_SOURCES EXCLUDE REGEX "/main\\.cpp$")
+list(FILTER VTM_SOURCES EXCLUDE REGEX "/(main|headless_main)\\.cpp$")
 
 add_library(vtm_core STATIC ${VTM_SOURCES} resources.qrc)
 target_include_directories(vtm_core PUBLIC ${ADDITIONAL_DIRS})
@@ -67,17 +66,11 @@ if(MSVC)
   target_compile_options(vtm_core PRIVATE /utf-8)
 endif()
 
-if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
-  qt_add_executable(${PROJECT_NAME} main.cpp MANUAL_FINALIZATION)
-else()
-  if(ANDROID)
-    add_library(${PROJECT_NAME} SHARED main.cpp)
-  else()
-    add_executable(${PROJECT_NAME} main.cpp isCtrlPressed.h)
-  endif()
-endif()
-
+qt_add_executable(${PROJECT_NAME} main.cpp MANUAL_FINALIZATION)
 target_link_libraries(${PROJECT_NAME} PRIVATE vtm_core)
+
+add_executable(${PROJECT_NAME}-headless headless_main.cpp)
+target_link_libraries(${PROJECT_NAME}-headless PRIVATE vtm_core)
 
 if(MSVC)
   target_compile_options(${PROJECT_NAME} PRIVATE /utf-8)
@@ -96,3 +89,6 @@ endif()
 if(QT_VERSION_MAJOR EQUAL 6)
   qt_finalize_executable(${PROJECT_NAME})
 endif()
+
+install(TARGETS ${PROJECT_NAME} vtm_core)
+install(TARGETS ${PROJECT_NAME}-headless)

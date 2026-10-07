@@ -16,8 +16,16 @@
     inputs.flake-parts.lib.mkFlake {inherit inputs;} {
       imports = [inputs.treefmt-nix.flakeModule];
       systems = import inputs.systems;
-      perSystem = {inputs', ...}: {
-        packages = {};
+      perSystem = {
+        pkgs,
+        self',
+        ...
+      }: let
+      in {
+        packages = {
+          VTM = pkgs.qt6.callPackage ./default.nix {};
+          default = self'.packages.VTM;
+        };
         treefmt = import ./treefmt.nix;
       };
     };

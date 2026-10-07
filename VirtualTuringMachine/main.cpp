@@ -10,6 +10,7 @@ int main(int argc, char* argv[]) {
 
     QApplication::setApplicationName("Virtual Turing Machine");
     QApplication::setOrganizationDomain("mai.ru");
+    Q_INIT_RESOURCE(resources);
 
     Configuration::GetInstance().Init(&a);
     if (Configuration::GetInstance().IsDarkTheme()) {
