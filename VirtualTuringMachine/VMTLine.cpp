@@ -43,9 +43,7 @@ std::shared_ptr<VMTUndoElement> VMTLine::SetSignAtActivePosition(QChar sign) {
 
 std::shared_ptr<VMTUndoElement> VMTLine::SetValueAt(size_t index, QChar sign) {
     if (!alphabit_->Contains(sign)) {
-        // TODO(Tias) add custom exception for sign not in alphabit
-        throw std::logic_error("Trying set sign not from alphabit with code: " +
-                               std::to_string(sign.unicode()));
+        return std::shared_ptr<VMTUndoElement>();
     }
     constexpr size_t max_meaningfull_line_length = 10000;
     if (index >= max_meaningfull_line_length) {

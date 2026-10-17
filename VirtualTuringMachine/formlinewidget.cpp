@@ -4,7 +4,6 @@
 #include <qlogging.h>
 
 #include <memory>
-#include <stdexcept>
 
 #include "VMTAlphabit.h"
 #include "ui_formlinewidget.h"
@@ -144,22 +143,28 @@ bool FormLineWidget::eventFilter(QObject* object, QEvent* event) {
 
 void FormLineWidget::onEditChanged(QString text) {
     QLineEdit* line_cell = dynamic_cast<QLineEdit*>(sender());
-    if (line_cell) {
-        int index = line_cell - &_line_edit[0];
-        QChar newLetter = _line->GetAlphabit()->GetLambda();
-        if (text.size() > 0) {
-            newLetter = text.back();
-        }
-        line_cell->setText(newLetter);
-        _line->SetValueAt(_line_view.offset + index, newLetter);
+    if (!line_cell) {
+        return;
     }
+    int index = line_cell - &_line_edit[0];
+    QChar oldLetter = _line->GetValueAt(_line_view.offset + index);
+    QChar newLetter = _line->GetAlphabit()->GetLambda();
+    if (text.size() > 0) {
+        newLetter = text.back();
+    }
+    if (!_line->GetAlphabit()->Contains(newLetter) || newLetter == oldLetter) {
+        line_cell->setText(oldLetter);
+        return;
+    }
+    line_cell->setText(newLetter);
+    _line->SetValueAt(_line_view.offset + index, newLetter);
 }
 
 void FormLineWidget::resizeEvent(QResizeEvent* event) {
     size_t width = event->size().width() / event->size().height();
 
     if (width != _line_view.width) {
-        _line_view.width = width;
+        _line_view.width = std::min(_line_edit.size(), width);
         for (size_t i = 0; i < _line_edit.size(); i++)
             if (i >= _line_view.width)
                 ui->frame->layout()->itemAt(i)->widget()->setHidden(true);
