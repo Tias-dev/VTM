@@ -10,7 +10,9 @@
 #include <QMessageBox>
 #include <QScreen>
 #include <chrono>
+#include <memory>
 
+#include "VMTProjectSaver.h"
 #include "formactionhint.h"
 #include "formalphabit.h"
 #include "screentools.h"
@@ -35,7 +37,8 @@ FormEditorMachine::FormEditorMachine(QWidget* parent)
       _form_alphabit(nullptr),
       _form_calculator(nullptr),
       _form_complex_machines(nullptr),
-      _form_action_hint(nullptr) {
+      _form_action_hint(nullptr),
+      _auto_save_timer(std::make_shared<QTimer>()) {
     qDebug() << "FormEditorMachine::Constructor";
     ui->setupUi(this);
     VmtTheme::polishWidgetTree(this);
@@ -43,21 +46,10 @@ FormEditorMachine::FormEditorMachine(QWidget* parent)
     QString machine_name = VMTProject::GetInstance().GetCurrentMachineName();
 
     ui->widget_editor->SetEnvironment(this);
-    //*
 
     ui->widget_editor->SetComplexMachine(
         VMTProject::GetInstance().GetMachine(machine_name));
 
-    /*/
-    std::shared_ptr<IVMTMachine> left_word =
-    VMTMachineStub::CreateMachineByID(IVMTMachine::MachineType::MT_COPY,VMTProject::GetInstance().GetMachine(machine_name));
-    std::shared_ptr<IVMTMachine> complex_stub =
-    left_word->CreateComplexMachine(this); std::shared_ptr<VMTComplexMachine>
-    complex_machine= VMTProject::GetInstance().GetMachine(machine_name);
-    complex_machine->SetInnerObject(std::dynamic_pointer_cast<VMTComplexMachine>(complex_stub)->GetInnerObject(),complex_machine);
-    ui->widget_editor->SetComplexMachine(complex_machine);
-
-    //*/
     ui->widget_editor->GetComplexMachine()->DeselectAll();
 
     _tools_group =
@@ -102,6 +94,13 @@ FormEditorMachine::FormEditorMachine(QWidget* parent)
 
     ui->properties_frame->setHidden(true);
     st.ResizePropertyPanel(ui->properties_frame);
+
+    QObject::connect(_auto_save_timer.get(), &QTimer::timeout, []() {
+        qDebug() << "Start project auto saving";
+        VMTProjectSaver::SaveProject(&VMTProject::GetInstance());
+    });
+
+    _auto_save_timer->start(10000);
 }
 
 void FormEditorMachine::Run() {

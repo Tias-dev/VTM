@@ -2,7 +2,9 @@
 #define FORMEDITORMACHINE_H
 
 #include <QButtonGroup>
+#include <QTimer>
 #include <QWidget>
+#include <memory>
 
 #include "formactionhint.h"
 #include "formalphabit.h"
@@ -102,6 +104,8 @@ class FormEditorMachine : public QWidget,
     FormComplexMachines* _form_complex_machines;
     FormActionHint* _form_action_hint;
     bool _deferTransitionRouting = false;
+
+    std::shared_ptr<QTimer> _auto_save_timer;
 };
 
 #endif  // FORMEDITORMACHINE_H

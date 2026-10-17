@@ -1,7 +1,8 @@
 #include "ui.h"
 
-#include "VMTJsonSerializer.h"
-#include "uistatenewproject.h"
+#include <QMessageBox>
+
+#include "VMTProjectSaver.h"
 
 namespace utils::ui {
 QChar escapeChar(QChar c) {
@@ -20,12 +21,9 @@ QString escapeString(const QString& s) {
 }
 bool SerializeWithPromptIfNeeded() {
     QString file_path;
-    UIStateNewProject::GetProjectFileName(file_path);
-    VMTJsonSerializer serializer{file_path};
     auto& project = VMTProject::GetInstance();
-    if (!project.GetMachines().empty() && serializer.serialize(&project)) {
-        Configuration::GetInstance().AddRecentProject(file_path);
-        Configuration::GetInstance().Save();
+    if (!project.GetMachines().empty() &&
+        VMTProjectSaver::SaveProject(&project)) {
         QMessageBox box;
         box.setText("Project saved");
         box.exec();

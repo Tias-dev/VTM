@@ -1,12 +1,14 @@
 #ifndef UISTATENEWPROJECT_H
 #define UISTATENEWPROJECT_H
+
+#include <QErrorMessage>
 #include <QMessageBox>
 
 #include "VMTJsonSerializer.h"
-#include "configuration.h"
+#include "VMTProjectSaver.h"
 #include "formnewproject.h"
-#include "uistateeditormachine.h"
 #include "uistatestub.h"
+
 class StateController;
 class UIStateNewProjectData;
 
@@ -40,28 +42,21 @@ class UIStateNewProject : public UIStateStub<FormNewProject> {
     void Action(const QString& name) override {
         parent->Update();
         if (name == QString("button_save")) {
-            QString name;
-            GetProjectFileName(name);
-            VMTJsonSerializer serializer(name);
-            serializer.serialize(&VMTProject::GetInstance());
-
-            Configuration::GetInstance().AddRecentProject(name);
-            Configuration::GetInstance().Save();
-            QMessageBox box;
-            box.setText("Project saved");
-            box.exec();
+            if (VMTProjectSaver::SaveProject(&VMTProject::GetInstance())) {
+                QMessageBox box;
+                box.setText("Project saved");
+                box.exec();
+            } else {
+                QErrorMessage error;
+                error.showMessage("Can't save project :(");
+                error.exec();
+            }
         }
     }
 
     friend UIStateNewProjectData;
 
    public:
-    static void GetProjectFileName(QString& name) {
-        name = VMTProject::GetInstance().GetLocation();
-        name += "/";
-        name += VMTProject::GetInstance().GetName();
-        name += ".vmt.json";
-    }
 };
 
 class UIStateNewProjectData : public UIStateData {
