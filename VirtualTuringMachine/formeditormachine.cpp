@@ -101,6 +101,12 @@ FormEditorMachine::FormEditorMachine(QWidget* parent)
     });
 
     _auto_save_timer->start(10000);
+    QMessageBox howto_box;
+    howto_box.setWindowTitle("Про то, как управлять с клавиатуры");
+    howto_box.setText(QString(
+#include "howto.md"
+        ));
+    howto_box.exec();
 }
 
 void FormEditorMachine::Run() {
