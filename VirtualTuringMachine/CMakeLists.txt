@@ -1,20 +1,18 @@
 cmake_minimum_required(VERSION 3.16)
 
-if(CMAKE_BUILD_TYPE STREQUAL "Debug")
-    # Prevent optimizations for begger debugger UX
-    add_compile_options(-O0)
-endif()
-
 if(NOT CMAKE_PREFIX_PATH AND DEFINED ENV{QTDIR})
   list(APPEND CMAKE_PREFIX_PATH "$ENV{QTDIR}")
 endif()
 
 if(APPLE AND NOT CMAKE_PREFIX_PATH)
-  set(_qt5_mac_candidates
-      "$ENV{HOME}/Qt/5.15.2/clang_64"
-      "/opt/homebrew/opt/qt@5"
-      "/usr/local/opt/qt@5")
-  foreach(_qt_path IN LISTS _qt5_mac_candidates)
+  set(_qt_mac_candidates
+      "$ENV{HOME}/Qt/6.5.3/macos"
+      "$ENV{HOME}/Qt/6.5.3/clang_64"
+      "/opt/homebrew/opt/qtbase"
+      "/opt/homebrew/opt/qt"
+      "/usr/local/opt/qtbase"
+      "/usr/local/opt/qt")
+  foreach(_qt_path IN LISTS _qt_mac_candidates)
     if(EXISTS "${_qt_path}/lib/cmake/Qt6/Qt6Config.cmake")
       list(APPEND CMAKE_PREFIX_PATH "${_qt_path}")
       break()
@@ -59,6 +57,9 @@ file(
   LIST_DIRECTORIES FALSE
   *.cpp)
 list(FILTER VTM_SOURCES EXCLUDE REGEX "/(main|headless_main)\\.cpp$")
+list(FILTER VTM_SOURCES EXCLUDE REGEX "/moc_.*\\.cpp$")
+list(FILTER VTM_SOURCES EXCLUDE REGEX "/qrc_.*\\.cpp$")
+list(FILTER VTM_SOURCES EXCLUDE REGEX "_plugin_import\\.cpp$")
 
 add_library(vtm_core STATIC ${VTM_SOURCES} resources.qrc)
 target_include_directories(vtm_core PUBLIC ${ADDITIONAL_DIRS})
@@ -73,27 +74,40 @@ endif()
 
 qt_add_executable(${PROJECT_NAME} main.cpp MANUAL_FINALIZATION)
 target_link_libraries(${PROJECT_NAME} PRIVATE vtm_core)
+target_compile_definitions(${PROJECT_NAME}
+                           PRIVATE VTM_VERSION="${PROJECT_VERSION}")
 
 add_executable(${PROJECT_NAME}-headless headless_main.cpp)
 target_link_libraries(${PROJECT_NAME}-headless PRIVATE vtm_core)
+target_compile_definitions(${PROJECT_NAME}-headless
+                           PRIVATE VTM_VERSION="${PROJECT_VERSION}")
 
 if(MSVC)
   target_compile_options(${PROJECT_NAME} PRIVATE /utf-8)
 endif()
 
 if(APPLE AND NOT ANDROID)
-  set_target_properties(${PROJECT_NAME} PROPERTIES MACOSX_BUNDLE ON)
-  if(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/MyAppInfo.plist")
-    set_target_properties(
-      ${PROJECT_NAME}
-      PROPERTIES MACOSX_BUNDLE_INFO_PLIST
-                 "${CMAKE_CURRENT_SOURCE_DIR}/MyAppInfo.plist")
-  endif()
+  set(_vtm_icon "${CMAKE_CURRENT_SOURCE_DIR}/Resources/app.icns")
+  set_source_files_properties(${_vtm_icon}
+                              PROPERTIES MACOSX_PACKAGE_LOCATION Resources)
+  target_sources(${PROJECT_NAME} PRIVATE ${_vtm_icon})
+  set_target_properties(
+    ${PROJECT_NAME}
+    PROPERTIES MACOSX_BUNDLE ON
+               MACOSX_BUNDLE_BUNDLE_NAME "Virtual Turing Machine"
+               MACOSX_BUNDLE_GUI_IDENTIFIER "ru.mai.vtm"
+               MACOSX_BUNDLE_BUNDLE_VERSION "${PROJECT_VERSION}"
+               MACOSX_BUNDLE_SHORT_VERSION_STRING "${PROJECT_VERSION}"
+               MACOSX_BUNDLE_ICON_FILE "app.icns")
 endif()
 
 if(QT_VERSION_MAJOR EQUAL 6)
   qt_finalize_executable(${PROJECT_NAME})
 endif()
 
-install(TARGETS ${PROJECT_NAME} vtm_core)
-install(TARGETS ${PROJECT_NAME}-headless)
+install(
+  TARGETS ${PROJECT_NAME}
+  BUNDLE DESTINATION .
+  RUNTIME DESTINATION bin)
+install(TARGETS ${PROJECT_NAME}-headless RUNTIME DESTINATION bin)
+install(TARGETS vtm_core ARCHIVE DESTINATION lib)

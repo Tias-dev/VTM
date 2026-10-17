@@ -20,12 +20,13 @@
 
 | Компонент | Версия |
 |-----------|--------|
-| C++ | 17 |
-| Qt | 5.15+ (рекомендуется) или 6.5+ |
+| C++ | 20 |
+| Qt | 6.5+ для CMake; 5.15+ или 6.5+ для qmake-проекта |
 | CMake | 3.16+ (для сборки через CMake) |
-| Компилятор | Clang / GCC / MSVC с поддержкой C++17 |
+| Компилятор | Clang / GCC / MSVC с поддержкой C++20 |
 
-На **macOS (Apple Silicon)** kit Qt 5.15 `clang_64` собирает бинарник **x86_64** (через Rosetta). Нативная **arm64** сборка — через Qt 6.5+.
+CI использует Qt 6.5.3 и собирает универсальное приложение для `x86_64` и
+`arm64` с минимальной версией macOS 11.
 
 ## Структура проекта
 
@@ -34,7 +35,7 @@ VTM/
 ├── CMakeLists.txt              # Корневой CMake-проект (VTM + тесты)
 ├── README.md
 ├── vmt-web/                    # Веб-клиент (Vite + React); https://dvdemon.github.io/VTM/
-├── .github/workflows/          # CI: vmt-web (Pages), desktop-qt5152 (macOS + Windows)
+├── .github/workflows/          # CI: vmt-web (Pages), desktop (macOS + Windows)
 ├── documentation/              # Спецификация, ADR, Structurizr
 ├── docs/                       # Документация и скриншоты
 ├── tests/                      # Unit-тесты (Qt Test)
@@ -101,16 +102,19 @@ make -j$(sysctl -n hw.ncpu)
 ### CMake
 
 ```bash
-# Qt 5.15 (путь подставьте свой)
-export QTDIR="$HOME/Qt/5.15.2/clang_64"
+# Qt 6.5+ (путь подставьте свой)
+export QTDIR="$HOME/Qt/6.5.3/macos"
 
-cmake -B build -DCMAKE_BUILD_TYPE=Release
+cmake -S . -B build -DCMAKE_BUILD_TYPE=Release \
+  -DCMAKE_PREFIX_PATH="$QTDIR"
 cmake --build build -j$(sysctl -n hw.ncpu)
 ```
 
 Результат: `build/VirtualTuringMachine/VTM.app` (цель `VTM`, ядро — статическая библиотека `vtm_core`).
 
-На Apple Silicon с Qt 5.15 CMake автоматически выставляет `CMAKE_OSX_ARCHITECTURES=x86_64`.
+Для универсальной сборки macOS добавьте параметры
+`-DCMAKE_OSX_ARCHITECTURES="x86_64;arm64"` и
+`-DCMAKE_OSX_DEPLOYMENT_TARGET=11.0`.
 
 Опции CMake:
 
@@ -163,47 +167,46 @@ cd build && ctest -R "test_machine_serialization|test_pathfinder" --output-on-fa
 
 ## Сборка и релизы на GitHub (macOS / Windows)
 
-Workflow [`.github/workflows/desktop-qt5152.yml`](.github/workflows/desktop-qt5152.yml):
+Workflow [`.github/workflows/desktop.yml`](.github/workflows/desktop.yml):
 
 | Событие | Результат |
 |---------|-----------|
-| Push / PR в `main` (изменения в `VirtualTuringMachine/`) | Параллельная сборка **macOS** и **Windows** (Qt **5.15.2**), zip в артефактах Actions |
-| Push тега `v*` (например `v1.0.0`) | [GitHub Release](https://github.com/DVDemon/VTM/releases) с zip в блоке **Assets** (macOS + Windows) |
+| Push / PR в `main` (изменения в desktop-исходниках) | Сборка **macOS** и **Windows** (Qt **6.5.3**) и zip в артефактах Actions |
+| Push тега `v*` (например `v1.0.5`) | [GitHub Release](https://github.com/Tias-dev/VTM/releases) с zip в блоке **Assets** |
 
 Локально опубликовать релиз со ссылками на сборки:
 
 ```bash
-git tag v1.0.0
-git push origin v1.0.0
+git tag v1.0.5
+git push origin v1.0.5
 ```
 
-После успешного workflow откройте **Releases** → выберите тег → внизу **Assets** будут `VTM-…-macOS-….zip` и `VTM-…-Windows-….zip` (прямые ссылки на скачивание).
-
-**Если в релизе только «Source code» / пустые Assets:** тег, скорее всего, создан **вручную** на старом коммите **до** появления workflow сборки. Тег `v1.0.0` сейчас указывает на `23a31d1`, а CI для desktop — на более новых коммитах. Варианты:
-
-1. **Новый тег на актуальном `main`** (рекомендуется):
-   ```bash
-   git pull
-   git tag v1.0.1
-   git push origin v1.0.1
-   ```
-2. **Дозалить сборки в существующий [v1.0.0](https://github.com/DVDemon/VTM/releases/tag/v1.0.0):** Actions → **Desktop (Qt 5.15.2)** → **Run workflow** → включить **publish_release**, указать **release_tag** `v1.0.0` (соберёт текущий `main` и загрузит zip в этот релиз).
-3. **Пересоздать тег** (если релиз можно удалить): удалить тег/релиз на GitHub, затем `git tag v1.0.0` на HEAD и `git push origin v1.0.0`.
+После успешного workflow архивы появятся в **Releases** → **Assets**.
+Опубликованные теги не перезаписываются; исправления выпускаются новой
+patch-версией.
 
 Артефакты:
 
 | Платформа | Архив | Содержимое |
 |-----------|--------|------------|
-| macOS | `VTM-<version>-macOS-Qt5.15.2-x86_64.zip` | `VTM.app` (`macdeployqt`) |
-| Windows | `VTM-<version>-Windows-Qt5.15.2-x64.zip` | `VTM.exe` + Qt DLL (`windeployqt`) |
+| macOS | `VTM-<version>-macOS-11-universal.zip` | `VTM.app`, Intel + Apple Silicon |
+| Windows | `VTM-<version>-Windows-x64.zip` | `VTM.exe` + Qt DLL (`windeployqt`) |
 
-macOS: kit **x86_64** (Rosetta на Apple Silicon); нативный arm64 — Qt 6.5+ (см. «Зависимости»). Windows: **MSVC 2019 64-bit**, runner `windows-latest`.
-
-Скачать сборку без тега: **Actions** → **Desktop (Qt 5.15.2)** → артефакты `VTM-macos-qt5152-x86_64` / `VTM-windows-qt5152-x64`.
+Сборка macOS проверяет обе архитектуры, минимальную версию системы,
+зависимости внутри app bundle и подпись. Сборку без тега можно скачать в
+**Actions** → **Desktop (Qt 6.5.3)**.
 
 ## Запуск
 
 ### macOS
+
+Сборки из GitHub подписаны ad-hoc и не нотарифицированы. После распаковки
+архива выполните один раз:
+
+```bash
+xattr -dr com.apple.quarantine VTM.app
+open VTM.app
+```
 
 После сборки через **qmake**:
 

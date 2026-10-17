@@ -1,6 +1,5 @@
 #include "VMTLine.h"
 
-#include <format>
 #include <memory>
 #include <stdexcept>
 
@@ -49,10 +48,11 @@ std::shared_ptr<VMTUndoElement> VMTLine::SetValueAt(size_t index, QChar sign) {
     }
     constexpr size_t max_meaningfull_line_length = 10000;
     if (index >= max_meaningfull_line_length) {
-        throw std::logic_error(std::format(
-            "Trying to set sign at position: {}, which is bigger than maxinum "
-            "meaningful line length: {}. There might be overflow in integer",
-            index, max_meaningfull_line_length));
+        throw std::logic_error(
+            "Trying to set sign at position: " + std::to_string(index) +
+            ", which is bigger than maximum meaningful line length: " +
+            std::to_string(max_meaningfull_line_length) +
+            ". There might be overflow in integer");
     }
     while (index >= array_.size()) {
         array_.push_back(GetAlphabit()->GetLambda());
