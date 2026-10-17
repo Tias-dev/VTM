@@ -26,6 +26,7 @@ class FormLineWidget::ActivePositionChangeHandler
         }
 
         widget.SyncActivePositionView();
+        widget.SyncLineView();
     }
 };
 
