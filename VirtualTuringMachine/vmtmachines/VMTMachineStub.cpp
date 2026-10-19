@@ -315,6 +315,7 @@ bool VMTMachineStub::IsSelected() { return this->_selected; }
 
 void VMTMachineStub::Move(const QPoint& center, IVMTEnvironment* environment) {
     _center = center;
+    environment->GetGraphics().SnapToGris(_center);
     Update(environment);
 }
 
