@@ -40,26 +40,6 @@ void VMTTransitionConditions::Update(IVMTEnvironment* environment) {
     _transition->Changed(environment);
 }
 
-void VMTTransitionConditions::Deserialize(QDataStream& stream) {
-    short int length;
-    stream >> length;
-    if (length > 0) {
-        char* array = new char[length + 1];
-        memset(array, 0, length + 1);
-        stream.readRawData(array, length);
-        _signs.resize(length);
-        for (int i = 0; i < length; i++) _signs[i] = QChar(array[i]);
-        delete[] array;
-    } else
-        _signs = "";
-}
-
-void VMTTransitionConditions::Serialize(QDataStream& stream) {
-    stream << (short int)_signs.length();
-    const std::string array = _signs.toStdString();
-    stream.writeRawData(array.c_str(), _signs.length());
-}
-
 void VMTTransitionConditions::ChangeAlphabit(
     const std::shared_ptr<VMTAlphabit> other) {
     if (IsAllEnabled()) {

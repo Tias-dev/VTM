@@ -43,9 +43,6 @@ class IVMTMachine {
 
     virtual std::shared_ptr<IVMTMachine> CreateComplexMachine(
         IVMTEnvironment*) = 0;
-    virtual void Serialize(QDataStream&) = 0;
-    virtual void Deserialize(QDataStream&) = 0;
-
     virtual void AddIncomingTransition(
         std::weak_ptr<IVMTTransition> transition) = 0;
     virtual void AddOutgoingTransition(

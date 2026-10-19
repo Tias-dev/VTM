@@ -12,14 +12,6 @@ VMTMachineCopy::VMTMachineCopy(std::weak_ptr<VMTComplexMachine> parent)
                    VMTMachineStub::_st.GetCellSize().height());
 }
 
-void VMTMachineCopy::Serialize(QDataStream& stream) {
-    VMTMachineStub::Serialize(stream);
-}
-
-void VMTMachineCopy::Deserialize(QDataStream& stream) {
-    VMTMachineStub::Deserialize(stream);
-}
-
 std::shared_ptr<IVMTMachine> VMTMachineCopy::Clone(IVMTEnvironment*) {
     std::shared_ptr<IVMTMachine> result =
         std::shared_ptr<IVMTMachine>(new VMTMachineCopy(_parent));

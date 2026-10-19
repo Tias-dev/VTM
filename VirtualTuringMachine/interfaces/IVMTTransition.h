@@ -19,8 +19,6 @@ class IVMTEnvironment;
 
 class IVMTTransition {
    public:
-    virtual void Serialize(QDataStream&) = 0;
-    virtual void Deserialize(QDataStream&) = 0;
     virtual void BeginDrag(IVMTEnvironment* environment,
                            const QPoint& p_Point) = 0;
     virtual void ChangeAlphabit(std::shared_ptr<VMTAlphabit> alphabit) = 0;

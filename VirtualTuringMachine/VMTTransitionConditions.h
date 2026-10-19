@@ -24,8 +24,6 @@ class VMTTransitionConditions : public IVMTAlphabitSource {
                             std::shared_ptr<VMTAlphabit> alphabit);
     VMTTransitionConditions(const VMTTransitionConditions& other);
     VMTTransitionConditions& operator=(const VMTTransitionConditions& other);
-    void Serialize(QDataStream&);
-    void Deserialize(QDataStream&);
     void ChangeAlphabit(const std::shared_ptr<VMTAlphabit> other);
     const QString& GetAsString();
     QPoint GetDimensions(IVMTEnvironment* environment, int size);

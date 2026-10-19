@@ -8,8 +8,6 @@ class VMTMachineFinish : public VMTMachineStub {
    public:
     VMTMachineFinish(std::weak_ptr<VMTComplexMachine> parent);
 
-    void Serialize(QDataStream&) override;
-    void Deserialize(QDataStream&) override;
     std::shared_ptr<IVMTMachine> Clone(IVMTEnvironment*) override;
 
     void DoAction(std::shared_ptr<VMTLine> line) override;

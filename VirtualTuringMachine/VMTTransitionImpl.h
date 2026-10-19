@@ -17,8 +17,6 @@ class VMTTransitionImpl : public IVMTTransition {
    public:
     VMTTransitionImpl(std::weak_ptr<VMTComplexMachine> parent);
 
-    void Serialize(QDataStream&) override;
-    void Deserialize(QDataStream&) override;
     void BeginDrag(IVMTEnvironment* environment,
                    const QPoint& p_Point) override;
     void ChangeAlphabit(std::shared_ptr<VMTAlphabit> alphabit) override;
