@@ -256,6 +256,7 @@ jobs:
           retention-days: 14
 
   build-unix-universal:
+    name: Unix Universal
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
@@ -283,7 +284,7 @@ jobs:
           fi
           nix bundle .
           mkdir -p dist
-          mv $(readlink VTM-arx) dist/VTM-unix-x64-universal
+          cp $(readlink VTM-arx) dist/VTM-unix-x64-universal
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4
