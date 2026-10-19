@@ -2,6 +2,7 @@
 
 #include <algorithm>
 #include <cmath>
+#include <set>
 
 #include "diagrambezier.h"
 #include "utils/ui.h"

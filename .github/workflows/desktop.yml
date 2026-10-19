@@ -1,0 +1,300 @@
+# Build self-contained VTM desktop packages and publish them on version tags.
+
+name: Desktop (Qt 6.5.3)
+
+on:
+  push:
+    branches: [main, master, 'fix/**']
+    tags: ['v*']
+    paths:
+      - 'VirtualTuringMachine/**'
+      - 'CMakeLists.txt'
+      - 'tests/**'
+      - '.github/workflows/desktop.yml'
+  pull_request:
+    paths:
+      - 'VirtualTuringMachine/**'
+      - 'CMakeLists.txt'
+      - 'tests/**'
+      - '.github/workflows/desktop.yml'
+  workflow_dispatch:
+    inputs:
+      release_tag:
+        description: 'Existing tag to upload packages to (for example v1.0.5)'
+        required: false
+        type: string
+      publish_release:
+        description: 'Attach packages to the selected GitHub Release'
+        required: false
+        type: boolean
+        default: false
+
+concurrency:
+  group: desktop-qt653-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  QT_VERSION: '6.5.3'
+  MACOS_DEPLOYMENT_TARGET: '11.0'
+
+jobs:
+  build-macos:
+    name: macOS 11+ universal
+    runs-on: macos-14
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install official Qt ${{ env.QT_VERSION }}
+        uses: jurplel/install-qt-action@v4
+        with:
+          version: ${{ env.QT_VERSION }}
+          host: mac
+          target: desktop
+          arch: clang_64
+          install-deps: true
+          cache: true
+          cache-key-prefix: vtm-qt-653-macos
+
+      - name: Remove obsolete AGL link on current macOS SDKs
+        shell: bash
+        run: |
+          set -euo pipefail
+          FILE="${QT_ROOT_DIR}/lib/cmake/Qt6/FindWrapOpenGL.cmake"
+          sed -i '' '/find_library(WrapOpenGL_AGL NAMES AGL)/,/endif()/d' "$FILE"
+          sed -i '' '/if(NOT __opengl_agl_fw_path)/,/endif()/d' "$FILE"
+          sed -i '' '/target_link_libraries(WrapOpenGL::WrapOpenGL INTERFACE ${__opengl_agl_fw_path})/d' "$FILE"
+
+      - name: Configure CMake
+        run: |
+          cmake -S . -B build \
+            -DCMAKE_BUILD_TYPE=Release \
+            -DBUILD_TESTS=OFF \
+            -DCMAKE_PREFIX_PATH="${QT_ROOT_DIR}" \
+            -DCMAKE_OSX_ARCHITECTURES="x86_64;arm64" \
+            -DCMAKE_OSX_DEPLOYMENT_TARGET="${MACOS_DEPLOYMENT_TARGET}"
+
+      - name: Build
+        run: cmake --build build --config Release --parallel 4
+
+      - name: Deploy Qt frameworks
+        id: app
+        shell: bash
+        run: |
+          set -euo pipefail
+          APP="$(find build -name VTM.app -type d | head -1)"
+          if [ -z "$APP" ]; then
+            echo 'VTM.app was not produced'
+            exit 1
+          fi
+          "${QT_ROOT_DIR}/bin/macdeployqt" "$APP" -always-overwrite
+          echo "path=$APP" >> "$GITHUB_OUTPUT"
+
+      - name: Validate and sign app bundle
+        shell: bash
+        run: |
+          set -euo pipefail
+          APP="${{ steps.app.outputs.path }}"
+          PLIST="$APP/Contents/Info.plist"
+          EXECUTABLE="$(/usr/libexec/PlistBuddy -c 'Print :CFBundleExecutable' "$PLIST")"
+          BIN="$APP/Contents/MacOS/$EXECUTABLE"
+
+          test "$EXECUTABLE" = 'VTM'
+          test -x "$BIN"
+          test -f "$APP/Contents/Resources/app.icns"
+          lipo "$BIN" -verify_arch x86_64 arm64
+
+          while IFS= read -r -d '' FILE; do
+            if ! file "$FILE" | grep -q 'Mach-O'; then
+              continue
+            fi
+
+            lipo "$FILE" -verify_arch x86_64 arm64
+            while read -r MINOS; do
+              if ! awk -v actual="$MINOS" -v maximum="$MACOS_DEPLOYMENT_TARGET" \
+                'BEGIN { exit !((actual + 0) <= (maximum + 0)) }'; then
+                echo "$FILE requires macOS $MINOS (maximum allowed is $MACOS_DEPLOYMENT_TARGET)"
+                exit 1
+              fi
+            done < <(vtool -show-build "$FILE" | awk '/minos/{print $2}')
+
+            while read -r DEPENDENCY; do
+              if [[ "$DEPENDENCY" =~ ^(/Users/|/private/tmp/|/opt/homebrew/|/usr/local/) ]]; then
+                echo "Non-portable dependency $DEPENDENCY found in $FILE"
+                exit 1
+              fi
+            done < <(otool -L "$FILE" | awk '/^[[:space:]]/{print $1}')
+
+            while read -r RPATH; do
+              if [[ "$RPATH" =~ ^(/Users/|/opt/homebrew/|/usr/local/) ]]; then
+                echo "Non-portable rpath $RPATH found in $FILE"
+                exit 1
+              fi
+            done < <(otool -l "$FILE" | awk \
+              '/cmd LC_RPATH/{getline; getline; print $2}')
+          done < <(find "$APP" -type f -print0)
+
+          codesign --force --deep --sign - "$APP"
+          codesign --verify --deep --strict --verbose=2 "$APP"
+
+      - name: Package and verify zip
+        id: package
+        shell: bash
+        env:
+          IS_RELEASE: ${{ startsWith(github.ref, 'refs/tags/v') }}
+        run: |
+          set -euo pipefail
+          mkdir -p dist
+          if [ "$IS_RELEASE" = 'true' ]; then
+            VERSION="${GITHUB_REF_NAME#v}"
+          else
+            VERSION="dev-${GITHUB_SHA::7}"
+          fi
+
+          ZIP="dist/VTM-${VERSION}-macOS-11-universal.zip"
+          ditto -c -k --sequesterRsrc --keepParent \
+            "${{ steps.app.outputs.path }}" "$ZIP"
+
+          EXTRACTED="$(mktemp -d)"
+          ditto -x -k "$ZIP" "$EXTRACTED"
+          codesign --verify --deep --strict --verbose=2 "$EXTRACTED/VTM.app"
+          test -x "$EXTRACTED/VTM.app/Contents/MacOS/VTM"
+
+          for ARCH in arm64 x86_64; do
+            THIN_ROOT="$(mktemp -d)"
+            ditto "${{ steps.app.outputs.path }}" "$THIN_ROOT/VTM.app"
+            while IFS= read -r -d '' FILE; do
+              if ! file "$FILE" | grep -q 'Mach-O'; then
+                continue
+              fi
+              lipo "$FILE" -thin "$ARCH" -output "${FILE}.thin"
+              mv "${FILE}.thin" "$FILE"
+            done < <(find "$THIN_ROOT/VTM.app" -type f -print0)
+            codesign --force --deep --sign - "$THIN_ROOT/VTM.app"
+            codesign --verify --deep --strict --verbose=2 "$THIN_ROOT/VTM.app"
+            ditto -c -k --sequesterRsrc --keepParent "$THIN_ROOT/VTM.app" \
+              "dist/VTM-${VERSION}-macOS-11-${ARCH}.zip"
+          done
+          echo "zip=$ZIP" >> "$GITHUB_OUTPUT"
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: VTM-macos-11-universal
+          path: 'dist/*.zip'
+          if-no-files-found: error
+          retention-days: 14
+
+  build-windows:
+    name: Windows x64
+    runs-on: windows-2022
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Qt ${{ env.QT_VERSION }}
+        uses: jurplel/install-qt-action@v4
+        with:
+          version: ${{ env.QT_VERSION }}
+          host: windows
+          target: desktop
+          arch: win64_msvc2019_64
+          install-deps: true
+          cache: true
+          cache-key-prefix: vtm-qt-653-windows
+
+      - name: Configure CMake
+        shell: pwsh
+        run: |
+          cmake -S . -B build -G "Visual Studio 17 2022" -A x64 `
+            -DBUILD_TESTS=OFF `
+            -DCMAKE_PREFIX_PATH="$env:QT_ROOT_DIR"
+
+      - name: Build
+        shell: pwsh
+        run: cmake --build build --config Release --target VTM --parallel 4
+
+      - name: Locate and deploy VTM.exe
+        id: exe
+        shell: bash
+        run: |
+          set -euo pipefail
+          EXE="$(find build -name VTM.exe -type f | head -1)"
+          test -n "$EXE"
+          echo "path=$EXE" >> "$GITHUB_OUTPUT"
+          echo "dir=$(dirname "$EXE")" >> "$GITHUB_OUTPUT"
+
+      - name: Bundle Qt
+        shell: pwsh
+        run: '& "$env:QT_ROOT_DIR\bin\windeployqt.exe" "${{ steps.exe.outputs.path }}" --release'
+
+      - name: Package zip
+        id: package
+        shell: bash
+        env:
+          IS_RELEASE: ${{ startsWith(github.ref, 'refs/tags/v') }}
+        run: |
+          set -euo pipefail
+          mkdir -p dist
+          if [ "$IS_RELEASE" = 'true' ]; then
+            VERSION="${GITHUB_REF_NAME#v}"
+          else
+            VERSION="dev-${GITHUB_SHA::7}"
+          fi
+          STAGE="dist/VTM-win64-stage"
+          mkdir -p "$STAGE"
+          cp -R "${{ steps.exe.outputs.dir }}"/* "$STAGE/"
+          ZIP="dist/VTM-${VERSION}-Windows-x64.zip"
+          powershell -NoProfile -Command \
+            "Compress-Archive -Path '$STAGE\*' -DestinationPath '$ZIP' -Force"
+          echo "zip=$ZIP" >> "$GITHUB_OUTPUT"
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: VTM-windows-x64
+          path: 'dist/*.zip'
+          if-no-files-found: error
+          retention-days: 14
+
+  release:
+    name: Publish GitHub Release
+    needs: [build-macos, build-windows]
+    if: >-
+      ${{
+        needs.build-macos.result == 'success' &&
+        needs.build-windows.result == 'success' &&
+        (
+          startsWith(github.ref, 'refs/tags/v') ||
+          (
+            github.event_name == 'workflow_dispatch' &&
+            inputs.publish_release == true &&
+            inputs.release_tag != ''
+          )
+        )
+      }}
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    env:
+      RELEASE_TAG: >-
+        ${{ startsWith(github.ref, 'refs/tags/') && github.ref_name || github.event.inputs.release_tag }}
+      GH_REPO: ${{ github.repository }}
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - name: Download packages
+        uses: actions/download-artifact@v4
+        with:
+          pattern: VTM-*
+          merge-multiple: true
+          path: release-assets
+
+      - name: Create or update release
+        shell: bash
+        run: |
+          set -euo pipefail
+          TAG="${RELEASE_TAG}"
+          if ! gh release view "$TAG" -R "$GH_REPO" >/dev/null 2>&1; then
+            gh release create "$TAG" -R "$GH_REPO" \
+              --title "VTM $TAG" \
+              --notes 'Self-contained desktop packages. The macOS app supports macOS 11+ on Intel and Apple Silicon.'
+          fi
+          gh release upload "$TAG" -R "$GH_REPO" release-assets/*.zip --clobber
