@@ -9,7 +9,9 @@
 #include <QWidget>
 
 #include "interfaces/IVMTAction.h"
+#include "utils/events.h"
 #include "vmtmachines/VMTComplexMachine.h"
+
 class IVMTEnvironment;
 
 namespace Ui {

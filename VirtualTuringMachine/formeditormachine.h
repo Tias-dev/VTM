@@ -13,6 +13,7 @@
 #include "formcomplexmachines.h"
 #include "interfaces/IVMTActionController.h"
 #include "interfaces/IVMTEnvironment.h"
+#include "utils/events.h"
 
 namespace Ui {
 class FormEditorMachine;
@@ -106,6 +107,8 @@ class FormEditorMachine : public QWidget,
     bool _deferTransitionRouting = false;
 
     std::shared_ptr<QTimer> _auto_save_timer;
+
+    bool _ctrlPressed = false;
 };
 
 #endif  // FORMEDITORMACHINE_H

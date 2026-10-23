@@ -41,6 +41,7 @@ class VMTTransitionConditions : public IVMTAlphabitSource {
                    IVMTEnvironment* environment) override;
     void SetDisableAllExclude(QChar sign,
                               IVMTEnvironment* environment) override;
+    void SetEnableAllExclude(QChar sign, IVMTEnvironment* environment) override;
     QPixmap* GetImage() override;
     const QString& GetMessage() override;
 

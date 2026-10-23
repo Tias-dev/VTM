@@ -117,17 +117,18 @@ void VMTTransitionConditions::SetEnable(QChar sign, bool enable,
 
 void VMTTransitionConditions::SetDisableAllExclude(
     QChar sign, IVMTEnvironment* environment) {
-    QString signsCopy = _signs;
-    for (int i = 0; i < static_cast<int>(signsCopy.size()); ++i) {
-        if (signsCopy[i] == QChar(sign)) {
-            continue;
-        }
-        int index = _signs.indexOf(signsCopy[i]);
-        if (index != -1) {
-            _signs.remove(index, 1);
+    _signs = sign;
+    Update(environment);
+}
+
+void VMTTransitionConditions::SetEnableAllExclude(
+    QChar sign, IVMTEnvironment* environment) {
+    _signs.clear();
+    for (const QChar letter : _alphabit->ToString()) {
+        if (letter != sign) {
+            _signs.push_back(letter);
         }
     }
-    Update(environment);
 }
 
 VMTTransitionConditions::~VMTTransitionConditions() {}
