@@ -14,14 +14,6 @@ VMTMachineRightWord::VMTMachineRightWord(
                    VMTMachineStub::_st.GetCellSize().height());
 }
 
-void VMTMachineRightWord::Serialize(QDataStream& stream) {
-    VMTMachineStub::Serialize(stream);
-}
-
-void VMTMachineRightWord::Deserialize(QDataStream& stream) {
-    VMTMachineStub::Deserialize(stream);
-}
-
 std::shared_ptr<IVMTMachine> VMTMachineRightWord::Clone(IVMTEnvironment*) {
     std::shared_ptr<IVMTMachine> result =
         std::shared_ptr<IVMTMachine>(new VMTMachineRightWord(_parent));

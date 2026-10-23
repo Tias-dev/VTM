@@ -142,49 +142,6 @@ void VMTMachineStub::restoreLayoutFromLegacyBounds() {
     _output_point.ry() = portY;
 }
 
-void VMTMachineStub::Serialize(QDataStream& stream) {
-    stream << kMachineFormatV2Marker;
-    stream << (qint32)_center.x();
-    stream << (qint32)_center.y();
-    stream << (qint32)_size.x();
-    stream << (qint32)_size.y();
-    stream << (qint64)_power;
-}
-
-void VMTMachineStub::Deserialize(QDataStream& stream) {
-    qint32 marker = 0;
-    stream >> marker;
-
-    if (marker == kMachineFormatV2Marker) {
-        qint32 cx = 0;
-        qint32 cy = 0;
-        qint32 sx = 0;
-        qint32 sy = 0;
-        qint64 power = 1;
-        stream >> cx >> cy >> sx >> sy >> power;
-        _center = QPoint(cx, cy);
-        _size = QPoint(sx, sy);
-        _power = power;
-        applyLayoutFromState(nullptr, false);
-        return;
-    }
-
-    qint32 top = 0;
-    qint32 width = 0;
-    qint32 height = 0;
-    qint32 sx = 0;
-    qint32 sy = 0;
-    qint64 power = 1;
-    _bounds.setLeft(marker);
-    stream >> top >> width >> height >> sx >> sy >> power;
-    _bounds.setTop(top);
-    _bounds.setWidth(width);
-    _bounds.setHeight(height);
-    _size = QPoint(sx, sy);
-    _power = power;
-    restoreLayoutFromLegacyBounds();
-}
-
 VMTMachineStub::VMTMachineStub(const QString name,
                                std::weak_ptr<VMTComplexMachine> parent,
                                MachineType id, ImageType it)

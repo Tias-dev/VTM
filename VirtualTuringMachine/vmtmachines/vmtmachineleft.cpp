@@ -12,14 +12,6 @@ VMTMachineLeft::VMTMachineLeft(std::weak_ptr<VMTComplexMachine> parent)
                    VMTMachineStub::_st.GetCellSize().height());
 }
 
-void VMTMachineLeft::Serialize(QDataStream& stream) {
-    VMTMachineStub::Serialize(stream);
-}
-
-void VMTMachineLeft::Deserialize(QDataStream& stream) {
-    VMTMachineStub::Deserialize(stream);
-}
-
 std::shared_ptr<IVMTMachine> VMTMachineLeft::Clone(IVMTEnvironment*) {
     std::shared_ptr<IVMTMachine> result =
         std::shared_ptr<IVMTMachine>(new VMTMachineLeft(_parent));

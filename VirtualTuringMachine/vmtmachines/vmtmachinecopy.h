@@ -11,8 +11,6 @@ class VMTMachineCopy : public VMTMachineStub {
    public:
     VMTMachineCopy(std::weak_ptr<VMTComplexMachine> parent);
 
-    void Serialize(QDataStream&) override;
-    void Deserialize(QDataStream&) override;
     std::shared_ptr<IVMTMachine> Clone(IVMTEnvironment*) override;
 
     std::shared_ptr<IVMTMachine> CreateComplexMachine(

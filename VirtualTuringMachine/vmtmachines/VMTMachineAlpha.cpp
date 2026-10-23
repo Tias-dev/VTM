@@ -17,20 +17,6 @@ VMTMachineAlpha::VMTMachineAlpha(QChar sign,
                    VMTMachineStub::_st.GetCellSize().height());
 }
 
-void VMTMachineAlpha::Serialize(QDataStream& stream) {
-    VMTMachineStub::Serialize(stream);
-
-    stream << QChar(_sign);
-}
-
-void VMTMachineAlpha::Deserialize(QDataStream& stream) {
-    VMTMachineStub::Deserialize(stream);
-
-    QChar value;
-    stream >> value;
-    _sign = value.toLatin1();
-}
-
 std::shared_ptr<IVMTMachine> VMTMachineAlpha::Clone(IVMTEnvironment*) {
     std::shared_ptr<IVMTMachine> result =
         std::shared_ptr<IVMTMachine>(new VMTMachineAlpha(_sign, _parent));

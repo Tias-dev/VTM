@@ -46,8 +46,6 @@ class VMTMachineStub : public IVMTMachine {
 
     std::shared_ptr<IVMTMachine> CreateComplexMachine(
         IVMTEnvironment*) override;
-    void Serialize(QDataStream&) override;
-    void Deserialize(QDataStream&) override;
 
     void Update(IVMTEnvironment* environment) override;
 
