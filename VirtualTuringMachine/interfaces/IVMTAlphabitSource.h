@@ -20,6 +20,9 @@ class IVMTAlphabitSource {
     virtual void SetDisableAllExclude(
         [[maybe_unused]] QChar sign,
         [[maybe_unused]] IVMTEnvironment* environment) {};
+    virtual void SetEnableAllExclude(
+        [[maybe_unused]] QChar sign,
+        [[maybe_unused]] IVMTEnvironment* environment) {};
 
     virtual ~IVMTAlphabitSource() = default;
 };

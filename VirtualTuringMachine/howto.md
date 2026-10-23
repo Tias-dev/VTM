@@ -24,6 +24,8 @@ R""(
     <tr></tr>                      
     <tr><td>v</td>          <td style="text-align: right">выбор кастомной машины</td></tr>
     <tr><td>b</td>          <td style="text-align: right">выбор колеса</td></tr>
+    <tr><th>В выборе букв</th><th> для перехода</th></tr>                      
+    <tr><td>Ctrl+(тык по букве)</td>          <td style="text-align: right">Вместо отщелкивания данной буквы, отщелкивает все буквы, кроме данной(и наоборот)</td></tr>
 </table>
 
 )""

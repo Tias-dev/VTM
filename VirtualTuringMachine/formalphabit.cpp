@@ -18,7 +18,7 @@ FormAlphabit::FormAlphabit(IVMTAlphabitSource* alphabit_source,
     VmtTheme::polishWidgetTree(this);
 
     if (!_alphabit_source->GetAlphabit())
-        qDebug() << "FormAlphabit::FormAlphabit Oppps 2!";
+        throw std::logic_error("FormAlphabit::FormAlphabit No alphabit given!");
     QString str = _alphabit_source->GetAlphabit()->ToString();
 
     ui->frame->setLayout(&_layout);
@@ -49,22 +49,32 @@ FormAlphabit::FormAlphabit(IVMTAlphabitSource* alphabit_source,
 }
 
 void FormAlphabit::onRefClicked() {
-    QToolButton* button = dynamic_cast<QToolButton*>(sender());
-    if (button) {
-        QVariant var = button->property("sign");
+    QToolButton* clicked_button = dynamic_cast<QToolButton*>(sender());
+    if (clicked_button) {
+        QVariant var = clicked_button->property("sign");
         QString sign = var.toString();
         qDebug() << "Click";
         if (_alphabit_source) {
             if (ctrlPressed) {
-                qDebug() << "Disable all exclude this";
-                _alphabit_source->SetDisableAllExclude(sign[0].toLatin1(),
-                                                       _environment);
-                _environment->Repaint(QRect());
+                if (_alphabit_source->IsEnabled(sign[0])) {
+                    _alphabit_source->SetDisableAllExclude(sign[0],
+                                                           _environment);
+                    for (QToolButton& button : _buttons) {
+                        button.setChecked(button.property("sign") == sign);
+                    }
+                } else {
+                    _alphabit_source->SetEnableAllExclude(sign[0],
+                                                          _environment);
+                    for (QToolButton& button : _buttons) {
+                        button.setChecked(button.property("sign") != sign);
+                    }
+                }
             } else {
                 _alphabit_source->SetEnable(sign[0].toLatin1(),
-                                            button->isChecked(), _environment);
-                _environment->Repaint(QRect());
+                                            clicked_button->isChecked(),
+                                            _environment);
             }
+            _environment->Repaint(QRect());
         }
     }
 }

@@ -1,6 +1,7 @@
 #include "formeditormachine.h"
 
 #include <qlogging.h>
+#include <qnamespace.h>
 
 #include <QFile>
 #include <QFileDialog>
@@ -13,11 +14,11 @@
 #include <memory>
 
 #include "VMTProjectSaver.h"
-#include "formactionhint.h"
 #include "formalphabit.h"
+#include "isCtrlPressed.h"
 #include "screentools.h"
 #include "ui_formeditormachine.h"
-#include "uistateeditormachine.h"
+#include "uistatecompilermachine.h"
 #include "vmtactions/vmtactioncreateandconnect.h"
 #include "vmtactions/vmtactiondelete.h"
 #include "vmtactions/vmtactionlink.h"
@@ -146,10 +147,18 @@ void FormEditorMachine::OnKeyPressed(QKeyEvent* event) {
         this->SetAction(std::shared_ptr<IVMTAction>(
             new VMTActionPointer(this, ui->_navi->isChecked())));
     }
+    if (event->key() == Qt::Key_Control) {
+        qDebug() << "Ctrl pressed";
+        ctrlPressed = true;
+    }
 }
 
 void FormEditorMachine::OnKeyReleased(QKeyEvent* event) {
     switch (event->key()) {
+        case Qt::Key_Control:
+            ctrlPressed = false;
+            qDebug() << "Ctrl released";
+            return;
         case Qt::Key_Escape:
         case Qt::Key_1:
             SetAction(std::shared_ptr<IVMTAction>(
