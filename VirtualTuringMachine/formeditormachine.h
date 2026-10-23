@@ -107,8 +107,6 @@ class FormEditorMachine : public QWidget,
     bool _deferTransitionRouting = false;
 
     std::shared_ptr<QTimer> _auto_save_timer;
-
-    bool _ctrlPressed = false;
 };
 
 #endif  // FORMEDITORMACHINE_H

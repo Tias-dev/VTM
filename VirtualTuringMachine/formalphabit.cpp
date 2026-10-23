@@ -1,7 +1,10 @@
 #include "formalphabit.h"
 
+#include <qlogging.h>
+
 #include <QDebug>
 
+#include "VMTTransitionConditions.h"
 #include "interfaces/IVMTEnvironment.h"
 #include "screentools.h"
 #include "ui_formalphabit.h"
@@ -50,23 +53,25 @@ FormAlphabit::FormAlphabit(IVMTAlphabitSource* alphabit_source,
 
 void FormAlphabit::onRefClicked() {
     QToolButton* clicked_button = dynamic_cast<QToolButton*>(sender());
+    VMTTransitionConditions* conditions =
+        dynamic_cast<VMTTransitionConditions*>(_alphabit_source);
     if (clicked_button) {
         QVariant var = clicked_button->property("sign");
         QString sign = var.toString();
-        qDebug() << "Click";
         if (_alphabit_source) {
             if (ctrlPressed) {
-                if (_alphabit_source->IsEnabled(sign[0])) {
-                    _alphabit_source->SetDisableAllExclude(sign[0],
-                                                           _environment);
-                    for (QToolButton& button : _buttons) {
-                        button.setChecked(button.property("sign") == sign);
-                    }
-                } else {
+                if (_alphabit_source->IsEnabled(sign[0]) &&
+                    !conditions->IsAllEnabled()) {
                     _alphabit_source->SetEnableAllExclude(sign[0],
                                                           _environment);
                     for (QToolButton& button : _buttons) {
                         button.setChecked(button.property("sign") != sign);
+                    }
+                } else {
+                    _alphabit_source->SetDisableAllExclude(sign[0],
+                                                           _environment);
+                    for (QToolButton& button : _buttons) {
+                        button.setChecked(button.property("sign") == sign);
                     }
                 }
             } else {
