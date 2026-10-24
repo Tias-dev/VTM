@@ -5,6 +5,8 @@
 #include <QGuiApplication>
 #include <QTextStream>
 #include <cstdio>
+#include <iostream>
+#include <string>
 
 #include "VMTJsonSerializer.h"
 #include "vmtdebuger.h"
@@ -161,11 +163,15 @@ int main(int argc, char* argv[]) {
     QCommandLineOption printTraceOption(
         {QStringLiteral("t"), QStringLiteral("trace")},
         QStringLiteral("Whether print each step state or not(default not)"));
+    QCommandLineOption stdinInputOption(
+        {QStringLiteral("s"), QStringLiteral("stdin-input")},
+        QStringLiteral("Read input line from stdin"));
     parser.addOption(diagramOption);
     parser.addOption(machineOption);
     parser.addOption(inputOption);
     parser.addOption(maxStepsOption);
     parser.addOption(printTraceOption);
+    parser.addOption(stdinInputOption);
     parser.addPositionalArgument(QStringLiteral("word"),
                                  QStringLiteral("Input tape word."));
     parser.process(app);
@@ -183,12 +189,20 @@ int main(int argc, char* argv[]) {
         return 2;
     }
 
-    QStringList inputs = parser.values(inputOption);
-    inputs.append(parser.positionalArguments());
-    if (inputs.isEmpty()) {
-        QTextStream(stderr)
-            << "at least one --input must be specified" << Qt::endl;
-        return 2;
+    bool stdinInput = parser.isSet(stdinInputOption);
+    QStringList inputs{};
+    if (!stdinInput) {
+        inputs = parser.values(inputOption);
+        inputs.append(parser.positionalArguments());
+        if (inputs.isEmpty()) {
+            QTextStream(stderr)
+                << "at least one --input must be specified" << Qt::endl;
+            return 2;
+        }
+    } else {
+        std::string line;
+        std::getline(std::cin, line);
+        inputs.append(QString{line.c_str()});
     }
 
     QString machine = parser.value(machineOption);
