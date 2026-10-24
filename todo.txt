@@ -1,1 +1,2 @@
 2026-10-15 Transfer all char usage to QChar +VTM @Tias
+2026-10-24 fix segfault when change alpha sign with ctrl pressed

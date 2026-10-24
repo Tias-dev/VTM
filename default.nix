@@ -16,7 +16,7 @@
 in
   stdenv.mkDerivation {
     pname = "VTM";
-    version = "v1.0.2";
+    version = "v${builtins.replaceStrings ["\n"] [""] (builtins.readFile ./VERSION)}";
     src = sources;
     buildInputs = [
       qtbase
