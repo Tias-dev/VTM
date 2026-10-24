@@ -59,7 +59,7 @@ void FormAlphabit::onRefClicked() {
         QVariant var = clicked_button->property("sign");
         QString sign = var.toString();
         if (_alphabit_source) {
-            if (ctrlPressed) {
+            if (ctrlPressed && conditions) {
                 if (_alphabit_source->IsEnabled(sign[0]) &&
                     !conditions->IsAllEnabled()) {
                     _alphabit_source->SetEnableAllExclude(sign[0],
