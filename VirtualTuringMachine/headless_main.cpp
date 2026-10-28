@@ -1,3 +1,4 @@
+#include <qdebug.h>
 #include <qfloat16.h>
 
 #include <QByteArray>
@@ -58,7 +59,8 @@ QString outputWord(const std::shared_ptr<VMTLine>& line) {
 }
 
 bool run(const QString& path, const QString& machineName, const QString& input,
-         int maxSteps, QString& output, QString& error, bool trace) {
+         int maxSteps, QString& output, QString& error, bool trace,
+         bool jsonOutput) {
     VMTProject& project = VMTProject::GetInstance();
     bool loaded = false;
     if (VMTJsonSerializer::isJsonPath(path)) {
@@ -127,6 +129,12 @@ bool run(const QString& path, const QString& machineName, const QString& input,
                 QString::number(maxSteps);
         return false;
     }
+    if (jsonOutput) {
+        QString line = debugger.GetLine()->ToString();
+        size_t cursor = debugger.GetLine()->GetActivePosition();
+        std::cout << "{\"out_line\":\"" << line.toStdString()
+                  << "\",\"cursor\":" << cursor << "}\n";
+    }
     output = outputWord(debugger.GetLine());
     return true;
 }
@@ -166,12 +174,16 @@ int main(int argc, char* argv[]) {
     QCommandLineOption stdinInputOption(
         {QStringLiteral("s"), QStringLiteral("stdin-input")},
         QStringLiteral("Read input line from stdin"));
+    QCommandLineOption jsonOutputOption(
+        {QStringLiteral("j"), QStringLiteral("json-output")},
+        QStringLiteral("Output result in json format"));
     parser.addOption(diagramOption);
     parser.addOption(machineOption);
     parser.addOption(inputOption);
     parser.addOption(maxStepsOption);
     parser.addOption(printTraceOption);
     parser.addOption(stdinInputOption);
+    parser.addOption(jsonOutputOption);
     parser.addPositionalArgument(QStringLiteral("word"),
                                  QStringLiteral("Input tape word."));
     parser.process(app);
@@ -213,17 +225,19 @@ int main(int argc, char* argv[]) {
     }
 
     bool trace = parser.isSet(printTraceOption);
+    bool jsonOutput = parser.isSet(jsonOutputOption);
 
     QTextStream out(stdout);
     QTextStream err(stderr);
     for (const QString& input : inputs) {
         QString result;
         QString error;
-        if (!run(path, machine, input, maxSteps, result, error, trace)) {
+        if (!run(path, machine, input, maxSteps, result, error, trace,
+                 jsonOutput)) {
             err << error << Qt::endl;
             return 1;
         }
-        out << result << Qt::endl;
+        // out << result << Qt::endl;
     }
     return 0;
 }

@@ -1,5 +1,10 @@
 cmake_minimum_required(VERSION 3.16)
 
+if(CMAKE_BUILD_TYPE STREQUAL "Debug")
+    # Prevent optimizations for begger debugger UX
+    add_compile_options(-O0)
+endif()
+
 if(NOT CMAKE_PREFIX_PATH AND DEFINED ENV{QTDIR})
   list(APPEND CMAKE_PREFIX_PATH "$ENV{QTDIR}")
 endif()
