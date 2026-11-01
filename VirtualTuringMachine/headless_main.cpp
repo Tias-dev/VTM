@@ -107,7 +107,7 @@ bool run(const QString& path, const QString& machineName, const QString& input,
         debugger.GetLine()->SetValueAt(position + offset,
                                        input[position].toLatin1());
     }
-    debugger.GetLine()->SetActivePosition(input.size() + 1);
+    debugger.GetLine()->SetActivePosition(input.size() + offset);
 
     HeadlessEnvironment environment;
     debugger.ToStart(&environment);
