@@ -79,6 +79,8 @@ void VMTLine::Clear() {
     active_position_ = 0;
 }
 
-QString VMTLine::ToString() const { return QString{array_.data()}; }
+QString VMTLine::ToString() const {
+    return QString(array_.data(), array_.size());
+}
 
 VMTLine::~VMTLine() {}
