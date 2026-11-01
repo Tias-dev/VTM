@@ -99,8 +99,12 @@ bool run(const QString& path, const QString& machineName, const QString& input,
     }
 
     VMTDebuger debugger(project.GetAlphabit(), machine);
+    size_t offset = 1;
+    if (input.size() > 0 && input[0] == QChar(' ')) {
+        offset = 0;
+    }
     for (long position = 0; position < input.size(); ++position) {
-        debugger.GetLine()->SetValueAt(position + 1,
+        debugger.GetLine()->SetValueAt(position + offset,
                                        input[position].toLatin1());
     }
     debugger.GetLine()->SetActivePosition(input.size() + 1);
